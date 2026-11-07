@@ -1,0 +1,32 @@
+[
+  {
+    "id": "r-001",
+    "tipo": "CORTE_AGUA",
+    "ubicacion": { "lat": -16.3972, "lng": -71.5352 },
+    "texto": "Sin agua en la cuadra desde las 7 a.m.",
+    "creadoEn": "2026-11-07T12:00:00Z",
+    "expiraEn": "2030-01-01T00:00:00Z",
+    "confirmaciones": 7,
+    "desmentidos": 0
+  },
+  {
+    "id": "r-002",
+    "tipo": "VIA_BLOQUEADA",
+    "ubicacion": { "lat": -16.4000, "lng": -71.5380 },
+    "texto": "Calle cerrada por obras, desvío por la paralela.",
+    "creadoEn": "2026-11-07T13:30:00Z",
+    "expiraEn": "2030-01-01T00:00:00Z",
+    "confirmaciones": 3,
+    "desmentidos": 1
+  },
+  {
+    "id": "r-003",
+    "tipo": "CORTE_LUZ",
+    "ubicacion": { "lat": -16.3950, "lng": -71.5390 },
+    "texto": "Ejemplo de reporte YA CADUCADO: no debe aparecer en la app.",
+    "creadoEn": "2026-01-01T10:00:00Z",
+    "expiraEn": "2026-01-01T14:00:00Z",
+    "confirmaciones": 2,
+    "desmentidos": 0
+  }
+]

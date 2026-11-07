@@ -1,0 +1,30 @@
+[
+  {
+    "id": "c-001",
+    "nombre": "Comedor Popular Santa Catalina (ejemplo)",
+    "tipo": "COMEDOR",
+    "ubicacion": { "lat": -16.3958, "lng": -71.5362 },
+    "horario": "Lun-Sáb 11:30-14:00"
+  },
+  {
+    "id": "c-002",
+    "nombre": "Olla Común San Lázaro (ejemplo)",
+    "tipo": "OLLA_COMUN",
+    "ubicacion": { "lat": -16.3947, "lng": -71.5331 },
+    "horario": "Lun-Vie 12:00-14:00"
+  },
+  {
+    "id": "c-003",
+    "nombre": "Puesto de Salud Cercado (ejemplo)",
+    "tipo": "SALUD",
+    "ubicacion": { "lat": -16.4012, "lng": -71.5340 },
+    "horario": "Lun-Sáb 08:00-20:00"
+  },
+  {
+    "id": "c-004",
+    "nombre": "Centro de Acopio Plaza (ejemplo)",
+    "tipo": "ACOPIO",
+    "ubicacion": { "lat": -16.4006, "lng": -71.5398 },
+    "horario": "Todos los días 09:00-18:00"
+  }
+]

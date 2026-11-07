@@ -1,0 +1,6 @@
+[
+  { "id": "m-001", "tipo": "OFREZCO", "categoria": "Herramientas", "texto": "Presto escalera los fines de semana." },
+  { "id": "m-002", "tipo": "NECESITO", "categoria": "Cuidado", "texto": "Alguien que pasee a mi perro el martes por la tarde." },
+  { "id": "m-003", "tipo": "OFREZCO", "categoria": "Clases", "texto": "Refuerzo de matemáticas para primaria, gratis." },
+  { "id": "m-004", "tipo": "NECESITO", "categoria": "Transporte", "texto": "Ayuda para llevar una refrigeradora al primer piso." }
+]

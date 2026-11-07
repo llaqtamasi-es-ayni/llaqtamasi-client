@@ -1,0 +1,47 @@
+// Tema de Ayni. Docs: https://ionicframework.com/docs/theming/
+
+// ---------------------------------------------------------------------------
+// Modo normal: tema claro (paleta por defecto de Ionic).
+// ---------------------------------------------------------------------------
+:root {
+  --ion-color-primary: #b5452b; // terracota (sillar / tierra arequipeña)
+  --ion-color-primary-rgb: 181, 69, 43;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #9f3d26;
+  --ion-color-primary-tint: #bc5840;
+}
+
+// ---------------------------------------------------------------------------
+// Modo emergencia: fondo NEGRO puro (en OLED los píxeles negros no consumen
+// energía) y sin animaciones ni transiciones. Lo activa EmergenciaPage añadiendo
+// .ion-palette-dark y .modo-emergencia a <html>.
+// ---------------------------------------------------------------------------
+// Doble clase para ganar en especificidad a `.ion-palette-dark.md` / `.ion-palette-dark.ios` de Ionic.
+html.ion-palette-dark.modo-emergencia {
+  --ion-background-color: #000000;
+  --ion-background-color-rgb: 0, 0, 0;
+  --ion-text-color: #ffffff;
+  --ion-text-color-rgb: 255, 255, 255;
+  --ion-toolbar-background: #000000;
+  --ion-tab-bar-background: #000000;
+  --ion-item-background: #000000;
+  --ion-card-background: #0a0a0a;
+  --ion-color-primary: #ff6b4a;
+  --ion-color-primary-rgb: 255, 107, 74;
+
+  body {
+    background: #000000;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  ion-ripple-effect {
+    display: none !important;
+  }
+}

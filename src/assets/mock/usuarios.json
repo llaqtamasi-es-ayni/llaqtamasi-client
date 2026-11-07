@@ -1,0 +1,6 @@
+[
+  { "id": "u-001", "alias": "GasfiteroDelSolar", "verificado": true, "nivelConfianza": 4.6 },
+  { "id": "u-002", "alias": "BodegaLaEsquinita", "verificado": true, "nivelConfianza": 4.2 },
+  { "id": "u-003", "alias": "ManosAmigas", "verificado": false, "nivelConfianza": 3.8 },
+  { "id": "u-004", "alias": "VecinaRosa", "verificado": true, "nivelConfianza": 4.9 }
+]

@@ -1,0 +1,48 @@
+[
+  {
+    "id": "p-001",
+    "usuarioId": "u-001",
+    "tipo": "SERVICIO",
+    "categoria": "Gasfitería",
+    "descripcion": "Arreglo de fugas, caños y termas. Atiendo en el Cercado.",
+    "zonasAtencion": {
+      "type": "MultiPolygon",
+      "coordinates": [
+        [[[-71.5400, -16.3960], [-71.5340, -16.3960], [-71.5340, -16.4010], [-71.5400, -16.4010], [-71.5400, -16.3960]]]
+      ]
+    },
+    "visible": true,
+    "confianza": 4.6
+  },
+  {
+    "id": "p-002",
+    "usuarioId": "u-002",
+    "tipo": "TIENDA",
+    "categoria": "Abarrotes",
+    "descripcion": "Abarrotes, pan y productos de limpieza. Delivery a pie.",
+    "zonasAtencion": {
+      "type": "MultiPolygon",
+      "coordinates": [
+        [[[-71.5370, -16.3930], [-71.5310, -16.3930], [-71.5310, -16.3975], [-71.5370, -16.3975], [-71.5370, -16.3930]]],
+        [[[-71.5420, -16.3990], [-71.5385, -16.3990], [-71.5385, -16.4025], [-71.5420, -16.4025], [-71.5420, -16.3990]]]
+      ]
+    },
+    "visible": true,
+    "confianza": 4.2
+  },
+  {
+    "id": "p-003",
+    "usuarioId": "u-003",
+    "tipo": "APOYO",
+    "categoria": "Acompañamiento a adultos mayores",
+    "descripcion": "Acompaño a hacer trámites o compras a personas mayores.",
+    "zonasAtencion": {
+      "type": "MultiPolygon",
+      "coordinates": [
+        [[[-71.5390, -16.3975], [-71.5345, -16.3975], [-71.5345, -16.4005], [-71.5390, -16.4005], [-71.5390, -16.3975]]]
+      ]
+    },
+    "visible": true,
+    "confianza": 3.8
+  }
+]

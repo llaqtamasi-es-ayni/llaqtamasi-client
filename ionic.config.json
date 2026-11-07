@@ -1,0 +1,7 @@
+{
+  "name": "ayni-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
