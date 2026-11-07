@@ -224,3 +224,15 @@ Revisa estas reglas en cada pull request.
 - Pintar las zonas de atención de los proveedores en el mapa como polígonos, nunca como puntos.
 - Ícono y splash propios de Ayni. Hoy usa los de Ionic/Angular por defecto.
 - Los reportes de `assets/mock/reportes.json` tienen un `expiraEn` lejano para que se vean en la demo. Hay uno ya caducado a propósito: no debe aparecer en la app.
+
+## Conexión local con Spring Boot desde Android
+
+1. Configura la base MySQL y las variables de Spring Boot según el README del backend. Define `PORT=18080` antes de arrancar Spring Boot.
+2. En esta carpeta, usa Node 24. Ejecuta `npm ci`, `npm run build -- --configuration development` y `npx cap sync android`.
+3. Abre la carpeta `android` en Android Studio. Selecciona JDK 21 para Gradle y ejecuta la variante de depuración en el emulador.
+4. En la pantalla inicial, inicia sesión con una cuenta del backend. Luego selecciona una zona en **Mapa**. Puedes cerrar sesión desde **Perfil**. Debe haber al menos una zona y un centro registrado en esa zona para que aparezca un marcador.
+
+En desarrollo, Android usa `http://10.0.2.2:18080/api` para acceder al servidor de la PC. La variante de depuración permite HTTP a esa dirección. En el navegador de la PC, la misma compilación usa `http://localhost:18080/api`.
+
+El mapa consume login, zonas y centros. El cliente también tiene métodos para perfiles, muro, reportes y `/sync`. Las pantallas que todavía muestran marcadores de trabajo pendiente requieren su integración de interfaz.
+

@@ -1,11 +1,12 @@
-import { Component } from '@angular/core';
-import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular';
+import { Component, inject } from '@angular/core';
+import { IonContent, IonHeader, IonTitle, IonToolbar, IonButton, NavController } from '@ionic/angular';
 
+import { ApiService } from '../../core/services/api.service';
 import { PagePlaceholderComponent } from '../../shared';
 
 @Component({
   selector: 'app-perfil',
-  imports: [IonHeader, IonToolbar, IonTitle, IonContent, PagePlaceholderComponent],
+  imports: [IonHeader, IonToolbar, IonTitle, IonContent, IonButton, PagePlaceholderComponent],
   template: `
     <ion-header>
       <ion-toolbar>
@@ -23,7 +24,16 @@ import { PagePlaceholderComponent } from '../../shared';
           'Nunca pedir ni mostrar dirección, coordenadas de casa ni teléfono',
         ]"
       />
+      <ion-button (click)="salir()">Cerrar sesión</ion-button>
     </ion-content>
   `,
 })
-export class PerfilPage {}
+export class PerfilPage {
+  private readonly api = inject(ApiService);
+  private readonly nav = inject(NavController);
+
+  salir(): void {
+    this.api.cerrarSesion();
+    void this.nav.navigateRoot('/login', { replaceUrl: true });
+  }
+}
