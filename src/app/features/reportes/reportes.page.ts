@@ -11,88 +11,169 @@ import { UbicacionReporteComponent } from './ubicacion-reporte.component';
   selector: 'app-reportes',
   imports: [FormsModule, IonContent, IonHeader, IonTitle, IonToolbar, UbicacionReporteComponent],
   template: `
-    <ion-header><ion-toolbar><ion-title>Reportes y emergencia</ion-title></ion-toolbar></ion-header>
-    <ion-content class="ion-padding">
-      <section class="emergencia" aria-labelledby="titulo-emergencia">
-        <h2 id="titulo-emergencia">Modo emergencia</h2>
-        <p>{{ network.online() ? 'En línea' : 'Sin conexión' }} · En cola: {{ cola.pendientes() }}</p>
-        <button type="button" [attr.aria-pressed]="emergencia" (click)="cambiarEmergencia(!emergencia)">
-          {{ emergencia ? 'Desactivar modo emergencia' : 'Activar modo emergencia' }}
-        </button>
-      </section>
-      @if (zonas.length) {
-        <label>Zona <select [ngModel]="zonaId" (ngModelChange)="cambiarZona($event)" [disabled]="ocupado">
-          @for (zona of zonas; track zona.id) { <option [value]="zona.id">{{ zona.nombre }}</option> }
-        </select></label>
-      }
-      <button type="button" (click)="recargar()" [disabled]="ocupado">Actualizar</button>
-      @if (ocupado) { <p role="status">Procesando…</p> }
-      @if (error) { <p role="alert">{{ error }}</p> }
-      @if (aviso) { <p role="status">{{ aviso }}</p> }
-      @if (zonaId && verificado) {
-        <button type="button" [disabled]="ocupado" [attr.aria-expanded]="mostrarFormulario"
-          (click)="alternarFormulario()">{{ mostrarFormulario ? 'Cerrar formulario' : '+ Nuevo reporte' }}</button>
-      }
-      @if (zonaId && verificado && mostrarFormulario) {
-        <form (ngSubmit)="publicar()">
-          <h2>Crear reporte</h2>
-          <label>Tipo <input name="tipo" [(ngModel)]="tipo" maxlength="150" required /></label>
-          <fieldset>
-            <legend>Lugar del incidente</legend>
-            <p>Marca el lugar en el mapa o escribe la dirección pública.</p>
-            <label>Dirección o referencia
-              <input name="direccion" [(ngModel)]="direccion" maxlength="250" placeholder="Ej. esquina de San Francisco con Moral" />
+    <ion-header>
+      <ion-toolbar><ion-title>Reportes y emergencia</ion-title></ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <main class="ayni-pagina">
+        <section class="emergencia ayni-tarjeta" aria-labelledby="titulo-emergencia">
+          <span class="ayni-etiqueta">{{ emergencia ? 'Modo activo' : 'Modo inactivo' }}</span>
+          <h1 id="titulo-emergencia">Modo emergencia</h1>
+          <p>Consulta los reportes de tu zona y revisa tus envíos pendientes.</p>
+          <div class="ayni-acciones" aria-live="polite">
+            <span class="ayni-etiqueta">{{ network.online() ? 'En línea' : 'Sin conexión' }}</span>
+            <span class="ayni-etiqueta">En cola: {{ cola.pendientes() }}</span>
+          </div>
+          <button type="button" [attr.aria-pressed]="emergencia" (click)="cambiarEmergencia(!emergencia)">
+            {{ emergencia ? 'Desactivar modo emergencia' : 'Activar modo emergencia' }}
+          </button>
+        </section>
+        <div class="ayni-barra">
+          @if (zonas.length) {
+            <label>
+              Zona
+              <select [ngModel]="zonaId" (ngModelChange)="cambiarZona($event)" [disabled]="ocupado">
+                @for (zona of zonas; track zona.id) {
+                  <option [value]="zona.id">{{ zona.nombre }}</option>
+                }
+              </select>
             </label>
-            <button type="button" [disabled]="ocupado" [attr.aria-expanded]="mostrarMapa" (click)="alternarMapa()">
-              {{ mostrarMapa ? 'Quitar punto del mapa' : 'Elegir en el mapa' }}
+          }
+          <button type="button" class="ayni-secundario" (click)="recargar()" [disabled]="ocupado">
+            Actualizar
+          </button>
+          @if (zonaId && verificado) {
+            <button
+              type="button"
+              [disabled]="ocupado"
+              [attr.aria-expanded]="mostrarFormulario"
+              (click)="alternarFormulario()"
+            >
+              {{ mostrarFormulario ? 'Cerrar formulario' : '+ Nuevo reporte' }}
             </button>
-            @if (mostrarMapa) {
-              <app-ubicacion-reporte [limite]="limiteZona" (elegido)="punto = $event" />
-              <p role="status">{{ punto ? 'Punto seleccionado.' : 'Toca el lugar del incidente en el mapa.' }}</p>
-            }
-          </fieldset>
-          <label>Duración (horas) <input name="horas" type="number" [(ngModel)]="horas" min="1" max="24" required /></label>
-          <label>Descripción <textarea name="texto" [(ngModel)]="texto" maxlength="2000" required></textarea></label>
-          <button type="submit" [disabled]="ocupado || (!punto && !direccion.trim())">Publicar</button>
-        </form>
-      } @else if (verificado === false) {
-        <p>Solo las cuentas verificadas pueden crear reportes.</p>
-      }
-      @for (item of items; track item.id) {
-        <article>
-          <h2>{{ item.tipo.replaceAll('_', ' ') }}</h2>
-          <p>{{ item.texto }}</p>
-          @if (item.direccion) { <p><strong>Lugar:</strong> {{ item.direccion }}</p> }
-          @if (item.ubicacion; as ubicacion) {
-            <p><strong>Punto en el mapa:</strong> {{ ubicacion.lat.toFixed(5) }}, {{ ubicacion.lng.toFixed(5) }}</p>
           }
-          <p>Confirmaciones: {{ item.confirmaciones }} · Desmentidos: {{ item.desmentidos }}</p>
-          @if (usuarioId && item.autorId !== usuarioId) {
-            <button type="button" (click)="responder(item.id, 'CONFIRMA')" [disabled]="ocupado">Confirmar</button>
-            <button type="button" (click)="responder(item.id, 'DESMIENTE')" [disabled]="ocupado">Desmentir</button>
-          }
-        </article>
-      } @empty {
-        @if (!ocupado && !error) {
-          <p>{{ zonaId ? 'No hay reportes vigentes.' : 'No hay zonas disponibles.' }}</p>
+        </div>
+        @if (ocupado) {
+          <p role="status">Procesando…</p>
         }
-      }
+        @if (error) {
+          <p role="alert">{{ error }}</p>
+        }
+        @if (aviso) {
+          <p role="status">{{ aviso }}</p>
+        }
+        @if (zonaId && verificado && mostrarFormulario) {
+          <form class="ayni-tarjeta" (ngSubmit)="publicar()">
+            <h2>Crear reporte</h2>
+            <label>
+              Tipo
+              <input name="tipo" [(ngModel)]="tipo" maxlength="150" required />
+            </label>
+            <fieldset>
+              <legend>Lugar del incidente</legend>
+              <p>Marca el lugar en el mapa o escribe la dirección pública.</p>
+              <label>
+                Dirección o referencia
+                <input
+                  name="direccion"
+                  [(ngModel)]="direccion"
+                  maxlength="250"
+                  placeholder="Ej. esquina de San Francisco con Moral"
+                />
+              </label>
+              <button
+                type="button"
+                class="ayni-secundario"
+                [disabled]="ocupado"
+                [attr.aria-expanded]="mostrarMapa"
+                (click)="alternarMapa()"
+              >
+                {{ mostrarMapa ? 'Quitar punto del mapa' : 'Elegir en el mapa' }}
+              </button>
+              @if (mostrarMapa) {
+                <app-ubicacion-reporte [limite]="limiteZona" (elegido)="punto = $event" />
+                <p role="status">
+                  {{ punto ? 'Punto seleccionado.' : 'Toca el lugar del incidente en el mapa.' }}
+                </p>
+              }
+            </fieldset>
+            <label>
+              Duración (horas)
+              <input name="horas" type="number" [(ngModel)]="horas" min="1" max="24" required />
+            </label>
+            <label>
+              Descripción
+              <textarea name="texto" [(ngModel)]="texto" maxlength="2000" required></textarea>
+            </label>
+            <button type="submit" [disabled]="ocupado || (!punto && !direccion.trim())">Publicar</button>
+          </form>
+        } @else if (verificado === false) {
+          <p class="ayni-vacio">Solo las cuentas verificadas pueden crear reportes.</p>
+        }
+        <section class="ayni-seccion" aria-labelledby="titulo-reportes">
+          <h2 id="titulo-reportes">Reportes vigentes</h2>
+          @for (item of items; track item.id) {
+            <article class="ayni-tarjeta">
+              <h3>{{ item.tipo.replaceAll('_', ' ') }}</h3>
+              <p class="ayni-texto">{{ item.texto }}</p>
+              @if (item.direccion) {
+                <p>
+                  <strong>Lugar:</strong>
+                  {{ item.direccion }}
+                </p>
+              }
+              @if (item.ubicacion; as ubicacion) {
+                <p>
+                  <strong>Punto en el mapa:</strong>
+                  {{ ubicacion.lat.toFixed(5) }},
+                  {{ ubicacion.lng.toFixed(5) }}
+                </p>
+              }
+              <div class="ayni-acciones">
+                <span class="ayni-etiqueta">Confirmaciones: {{ item.confirmaciones }}</span>
+                <span class="ayni-etiqueta">Desmentidos: {{ item.desmentidos }}</span>
+              </div>
+              @if (usuarioId && item.autorId !== usuarioId) {
+                <div class="ayni-acciones">
+                  <button type="button" (click)="responder(item.id, 'CONFIRMA')" [disabled]="ocupado">
+                    Confirmar
+                  </button>
+                  <button
+                    type="button"
+                    class="ayni-secundario"
+                    (click)="responder(item.id, 'DESMIENTE')"
+                    [disabled]="ocupado"
+                  >
+                    Desmentir
+                  </button>
+                </div>
+              }
+            </article>
+          } @empty {
+            @if (!ocupado && !error) {
+              <p class="ayni-vacio">
+                {{ zonaId ? 'No hay reportes vigentes.' : 'No hay zonas disponibles.' }}
+              </p>
+            }
+          }
+        </section>
+      </main>
     </ion-content>
   `,
   styles: `
-    form, article { margin-block: 16px; padding: 12px; border: 1px solid var(--ion-color-medium); border-radius: 8px; }
-    label { display: block; margin-block: 10px; }
-    input, select, textarea, button { padding: 8px; border: 1px solid var(--ion-color-medium); border-radius: 4px; }
-    textarea { display: block; width: 100%; }
-    button { margin: 4px; background: var(--ion-color-primary); color: var(--ion-color-primary-contrast); }
-    button:disabled { opacity: .55; }
-    article p { overflow-wrap: anywhere; white-space: pre-wrap; }
-    .emergencia { background: var(--ion-color-light); border-radius: 14px; padding: 14px; margin-bottom: 16px; }
-    .emergencia h2 { margin-top: 0; }
-    button { min-height: 44px; border-radius: 10px; padding-inline: 14px; font-weight: 600; }
-    select, input, textarea { min-height: 42px; max-width: 100%; }
-    fieldset { min-width: 0; border: 1px solid var(--ion-color-medium); border-radius: 8px; }
-    input[name="direccion"] { display: block; width: 100%; }
+    .emergencia {
+      --ion-color-primary: var(--ayni-emergency-primary);
+      --ayni-accent: var(--ayni-emergency-accent);
+      --ayni-accent-soft: var(--ayni-emergency-accent-soft);
+      background: var(--ayni-emergency-background);
+      border-color: var(--ayni-emergency-border);
+      border-inline-start: 4px solid var(--ayni-emergency-primary);
+      color: var(--ayni-emergency-primary);
+    }
+    .emergencia h1 { margin-top: 10px; }
+    .emergencia button { margin-top: 14px; }
+    fieldset { min-width: 0; margin: 0; padding: 12px; border: 1px solid var(--ayni-border); border-radius: 12px; }
+    fieldset button { margin-block: 10px; }
   `,
 })
 export class ReportesPage {
@@ -128,7 +209,6 @@ export class ReportesPage {
 
   cambiarEmergencia(activa: boolean): void {
     this.emergencia = activa;
-    this.document.documentElement.classList.toggle('ion-palette-dark', activa);
     this.document.documentElement.classList.toggle('modo-emergencia', activa);
   }
 

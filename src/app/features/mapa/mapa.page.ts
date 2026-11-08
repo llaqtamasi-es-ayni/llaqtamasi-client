@@ -23,37 +23,55 @@ const ZOOM_INICIAL = 16;
       </ion-toolbar>
     </ion-header>
     <ion-content>
-      @if (!api.usaMocks) {
-        <section class="conexion">
-          @if (zonas.length) {
-            <label>Zona
-              <select [(ngModel)]="zonaId" (ngModelChange)="cargarCentros()" [disabled]="cargando">
-                @for (zona of zonas; track zona.id) {
-                  <option [value]="zona.id">{{ zona.nombre }}</option>
-                }
-              </select>
-            </label>
-            <label>Tipo de centro
-              <select [ngModel]="tipoCentro" (ngModelChange)="filtrarCentros($event)" [disabled]="cargando || !centros.length">
-                <option value="">Todos</option>
-                @for (tipo of tiposCentro; track tipo.id) {
-                  <option [value]="tipo.id">{{ tipo.etiqueta }}</option>
-                }
-              </select>
-            </label>
-          }
-          @if (estado) { <p role="status">{{ estado }}</p> }
+      <main class="ayni-pagina ayni-pagina--mapa">
+        <section class="ayni-encabezado" aria-labelledby="titulo-mapa">
+          <span class="ayni-etiqueta">Directorio</span>
+          <h1 id="titulo-mapa">Centros de ayuda</h1>
+          <p>Toca un marcador para consultar los datos de un centro.</p>
         </section>
-      }
-      <div #mapa class="mapa"></div>
+        @if (!api.usaMocks) {
+          <section class="ayni-tarjeta filtros" aria-label="Filtros del mapa">
+            @if (zonas.length) {
+              <div class="ayni-barra">
+                <label>
+                  Zona
+                  <select [(ngModel)]="zonaId" (ngModelChange)="cargarCentros()" [disabled]="cargando">
+                    @for (zona of zonas; track zona.id) {
+                      <option [value]="zona.id">{{ zona.nombre }}</option>
+                    }
+                  </select>
+                </label>
+                <label>
+                  Tipo de centro
+                  <select
+                    [ngModel]="tipoCentro"
+                    (ngModelChange)="filtrarCentros($event)"
+                    [disabled]="cargando || !centros.length"
+                  >
+                    <option value="">Todos</option>
+                    @for (tipo of tiposCentro; track tipo.id) {
+                      <option [value]="tipo.id">{{ tipo.etiqueta }}</option>
+                    }
+                  </select>
+                </label>
+              </div>
+            }
+            @if (estado) {
+              <p role="status">{{ estado }}</p>
+            }
+          </section>
+        }
+        <div #mapa class="mapa ayni-mapa" role="region" aria-label="Mapa de centros de ayuda"></div>
+      </main>
     </ion-content>
   `,
   styles: `
-    .conexion { padding: 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; }
-    .conexion label { display: grid; gap: 4px; }
-    .conexion p { flex-basis: 100%; margin: 0; }
+    .filtros:empty { display: none; }
+    .filtros .ayni-barra { margin: 0; }
+    .filtros label { flex-basis: 8rem; }
     .mapa {
-      height: 100%;
+      height: clamp(22rem, 65vh, 52rem);
+      height: clamp(22rem, 65dvh, 52rem);
       width: 100%;
     }
   `,

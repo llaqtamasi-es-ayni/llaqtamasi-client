@@ -4,8 +4,8 @@ import type { LatLng } from '../../core';
 
 @Component({
   selector: 'app-ubicacion-reporte',
-  template: `<div #mapa class="mapa" aria-label="Mapa para elegir el lugar del reporte"></div>`,
-  styles: `.mapa { height: 280px; width: 100%; border-radius: 10px; z-index: 0; }`,
+  template: `<div #mapa class="mapa ayni-mapa" role="region" aria-label="Mapa para elegir el lugar del reporte"></div>`,
+  styles: `.mapa { height: 280px; width: 100%; }`,
 })
 export class UbicacionReporteComponent implements AfterViewInit, OnDestroy {
   readonly limite = input<string>();

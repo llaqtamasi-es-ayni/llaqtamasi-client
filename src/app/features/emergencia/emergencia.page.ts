@@ -6,7 +6,7 @@ import { NetworkService, OfflineQueueService } from '../../core';
 import { PagePlaceholderComponent } from '../../shared';
 
 /** Clases en <html> que activan el tema de emergencia (ver src/theme/variables.scss). */
-const CLASES_EMERGENCIA = ['ion-palette-dark', 'modo-emergencia'];
+const CLASE_EMERGENCIA = 'modo-emergencia';
 
 @Component({
   selector: 'app-emergencia',
@@ -24,7 +24,7 @@ const CLASES_EMERGENCIA = ['ion-palette-dark', 'modo-emergencia'];
       </p>
       <app-page-placeholder
         titulo="Modo emergencia"
-        descripcion="Funciona sin internet y ahorra batería: fondo negro (pantallas OLED), sin animaciones y GPS solo bajo demanda."
+        descripcion="Vista con paleta índigo y lavanda, sin animaciones."
         [pendientes]="[
           'Centros de ayuda cercanos guardados para uso offline',
           'Reportar emergencia en máximo 3 toques (queda en cola si no hay red)',
@@ -45,10 +45,10 @@ export class EmergenciaPage implements ViewWillEnter, ViewWillLeave {
   private readonly document = inject(DOCUMENT);
 
   ionViewWillEnter(): void {
-    this.document.documentElement.classList.add(...CLASES_EMERGENCIA);
+    this.document.documentElement.classList.add(CLASE_EMERGENCIA);
   }
 
   ionViewWillLeave(): void {
-    this.document.documentElement.classList.remove(...CLASES_EMERGENCIA);
+    this.document.documentElement.classList.remove(CLASE_EMERGENCIA);
   }
 }
