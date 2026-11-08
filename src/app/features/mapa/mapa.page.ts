@@ -5,18 +5,13 @@ import { FormsModule } from '@angular/forms';
 import * as L from 'leaflet';
 import { firstValueFrom } from 'rxjs';
 
-import { ApiService, type Centro, type TipoPerfil, type ZonaDisponible } from '../../core';
+import { ApiService, type Centro, type ZonaDisponible } from '../../core';
 
 import { ESTILO_CENTRO, iconoCentro } from './centro-iconos';
 
 /** Plaza de Armas de Arequipa. */
 const CENTRO_INICIAL: L.LatLngTuple = [-16.3989, -71.5369];
 const ZOOM_INICIAL = 16;
-const NOMBRES_PERFIL: Record<TipoPerfil, string> = {
-  SERVICIO: 'Servicio',
-  TIENDA: 'Tienda',
-  APOYO: 'Apoyo',
-};
 
 @Component({
   selector: 'app-mapa',
@@ -38,8 +33,6 @@ const NOMBRES_PERFIL: Record<TipoPerfil, string> = {
                 }
               </select>
             </label>
-          }
-          @if (zonas.length) {
             <label>Tipo de centro
               <select [ngModel]="tipoCentro" (ngModelChange)="filtrarCentros($event)" [disabled]="cargando || !centros.length">
                 <option value="">Todos</option>
@@ -52,34 +45,6 @@ const NOMBRES_PERFIL: Record<TipoPerfil, string> = {
           @if (estado) { <p role="status">{{ estado }}</p> }
         </section>
       }
-      <details class="directorio" (toggle)="abrirDirectorio($event)">
-        <summary>Directorio vecinal</summary>
-        <p>Perfiles que atienden en la Plaza de Armas de Arequipa. Ubicación fija para la demo.</p>
-        <label>Tipo de perfil
-          <select [(ngModel)]="tipoPerfil">
-            <option value="">Todos</option>
-            @for (tipo of tiposPerfil; track tipo.id) {
-              <option [value]="tipo.id">{{ tipo.etiqueta }}</option>
-            }
-          </select>
-        </label>
-        @if (cargandoPerfiles) {
-          <p role="status">Cargando perfiles…</p>
-        } @else if (errorPerfiles) {
-          <p role="status">No se pudo cargar el directorio.</p>
-          <button type="button" (click)="cargarPerfiles()">Reintentar</button>
-        } @else if (perfiles) {
-          <ul>
-            @for (perfil of perfilesVisibles; track perfil.id) {
-              <li><strong>{{ perfil.alias }}</strong> · {{ nombresPerfil[perfil.tipo] }}
-                <p>{{ perfil.descripcion }}</p>
-              </li>
-            } @empty {
-              <li>No hay perfiles que coincidan con esta búsqueda.</li>
-            }
-          </ul>
-        }
-      </details>
       <div #mapa class="mapa"></div>
     </ion-content>
   `,
@@ -87,8 +52,6 @@ const NOMBRES_PERFIL: Record<TipoPerfil, string> = {
     .conexion { padding: 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; }
     .conexion label { display: grid; gap: 4px; }
     .conexion p { flex-basis: 100%; margin: 0; }
-    .directorio { padding: 12px; }
-    .directorio summary { cursor: pointer; font-weight: 600; }
     .mapa {
       height: 100%;
       width: 100%;
@@ -104,41 +67,10 @@ export class MapaPage implements ViewDidEnter, OnDestroy {
   zonaId = '';
   centros: Centro[] = [];
   tipoCentro = '';
-  tipoPerfil = '';
-  perfiles?: Array<{ id: string; alias: string; tipo: TipoPerfil; descripcion: string }>;
-  cargandoPerfiles = false;
-  errorPerfiles = false;
-  readonly nombresPerfil = NOMBRES_PERFIL;
-  readonly tiposPerfil = Object.entries(NOMBRES_PERFIL).map(([id, etiqueta]) => ({ id, etiqueta }));
   readonly tiposCentro = Object.entries(ESTILO_CENTRO).map(([id, { etiqueta }]) => ({ id, etiqueta }));
   private marcadores?: L.LayerGroup;
   private readonly contenedor = viewChild.required<ElementRef<HTMLDivElement>>('mapa');
   private mapa?: L.Map;
-
-  get perfilesVisibles() {
-    return this.perfiles?.filter(p => !this.tipoPerfil || p.tipo === this.tipoPerfil) ?? [];
-  }
-
-  abrirDirectorio(event: Event): void {
-    if ((event.currentTarget as HTMLDetailsElement).open && !this.perfiles && !this.errorPerfiles) {
-      void this.cargarPerfiles();
-    }
-  }
-
-  async cargarPerfiles(): Promise<void> {
-    if (this.cargandoPerfiles) return;
-    this.cargandoPerfiles = true;
-    this.errorPerfiles = false;
-    try {
-      const [latitud, longitud] = CENTRO_INICIAL;
-      this.perfiles = await firstValueFrom(this.api.getPerfiles(latitud, longitud));
-    } catch {
-      this.errorPerfiles = true;
-    } finally {
-      this.cargandoPerfiles = false;
-      this.cambios.markForCheck();
-    }
-  }
 
   async ionViewDidEnter(): Promise<void> {
     if (this.mapa) {

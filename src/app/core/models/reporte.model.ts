@@ -6,8 +6,10 @@ export type TipoReporte =
 
 export interface Reporte {
   id: string;
+  autorId?: string;
   tipo: TipoReporte;
-  ubicacion: LatLng;
+  ubicacion: LatLng | null;
+  direccion?: string | null;
   texto: string;
   /** Fecha ISO 8601. */
   creadoEn: string;

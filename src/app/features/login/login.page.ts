@@ -126,7 +126,7 @@ export class LoginPage {
           : 'No se pudo crear la cuenta. Revisa los datos y la conexión con la API.');
       } else this.error.set(status === 401
         ? 'El usuario o la contraseña son incorrectos.'
-        : 'No se pudo iniciar sesión. Comprueba que la API esté activa en el puerto 18080.');
+        : 'No se pudo iniciar sesión. Comprueba que la API esté activa.');
     } finally {
       this.clave = '';
       this.confirmacion = '';
