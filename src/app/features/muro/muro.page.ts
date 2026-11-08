@@ -16,130 +16,227 @@ const NOMBRES_PERFIL: Record<TipoPerfil, string> = {
   selector: 'app-muro',
   imports: [RouterLink, FormsModule, IonContent, IonHeader, IonTitle, IonToolbar],
   template: `
-    <ion-header><ion-toolbar><ion-title>Muro vecinal</ion-title></ion-toolbar></ion-header>
-    <ion-content class="ion-padding">
-      @if (zonas.length) {
-        <label>Zona <select [ngModel]="zonaId" (ngModelChange)="cambiarZona($event)" [disabled]="ocupado">
-          @for (zona of zonas; track zona.id) { <option [value]="zona.id">{{ zona.nombre }}</option> }
-        </select></label>
-      }
-      <button type="button" (click)="recargar()" [disabled]="ocupado">Actualizar</button>
-      @if (ocupado) { <p role="status">Procesando…</p> }
-      @if (error) { <p role="alert">{{ error }}</p> }
-      @if (aviso) { <p role="status">{{ aviso }}</p> }
-      @if (zonaId && verificado) {
-        <button type="button" class="primario" [attr.aria-expanded]="mostrarFormulario"
-          [disabled]="ocupado" (click)="mostrarFormulario = !mostrarFormulario">{{ mostrarFormulario ? 'Cerrar formulario' : '+ Publicar' }}</button>
-      }
-      @if (zonaId && verificado && mostrarFormulario) {
-        <form (ngSubmit)="publicar()">
-          <h2>Nueva publicación</h2>
-          <label>Qué quieres publicar
-            <select name="formato" [(ngModel)]="formato">
-              <option value="aviso">Aviso vecinal</option>
-              <option value="servicio">Servicio calificable</option>
-              <option value="establecimiento">Local o establecimiento</option>
-            </select>
-          </label>
-          @if (formato !== 'aviso') {
-            @if (formato === 'establecimiento') {
-              <label>Nombre del establecimiento
-                <input name="establecimiento" [(ngModel)]="nombreEstablecimiento" maxlength="150" required />
-              </label>
-            }
-            <p>La publicación aparecerá junto a los avisos de la zona seleccionada.</p>
-            <label>Categoría
-              <select name="categoriaServicio" [(ngModel)]="categoriaServicio" required>
-                <option value="">Elige una categoría</option>
-                @for (opcion of categorias; track opcion.id) {
-                  <option [value]="opcion.id">{{ opcion.nombre }}</option>
+    <ion-header>
+      <ion-toolbar><ion-title>Muro vecinal</ion-title></ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <main class="ayni-pagina">
+        <section class="ayni-encabezado" aria-labelledby="titulo-muro">
+          <span class="ayni-etiqueta">Comunidad</span>
+          <h1 id="titulo-muro">Cadena de favores</h1>
+          <p>Pide ayuda, ofrece un favor o encuentra servicios y locales de tu zona.</p>
+        </section>
+        <div class="ayni-barra">
+          @if (zonas.length) {
+            <label>
+              Zona
+              <select [ngModel]="zonaId" (ngModelChange)="cambiarZona($event)" [disabled]="ocupado">
+                @for (zona of zonas; track zona.id) {
+                  <option [value]="zona.id">{{ zona.nombre }}</option>
                 }
               </select>
             </label>
-            @if (!categorias.length) { <p>No hay categorías de trabajo activas disponibles.</p> }
-          } @else {
-            <label>Tipo <select name="tipo" [(ngModel)]="tipo">
-              <option value="OFREZCO">Ofrezco</option><option value="NECESITO">Necesito</option>
-            </select></label>
-            <label>Asunto <input name="asunto" [(ngModel)]="categoria" maxlength="150" required /></label>
-            <label>Duración del aviso (horas)
-              <input name="duracion" type="number" [(ngModel)]="duracionHoras" min="1" max="720" step="1" required />
-            </label>
           }
-          <label>Descripción <textarea name="texto" [(ngModel)]="texto" maxlength="4000" required></textarea></label>
-          <button type="submit" [disabled]="ocupado">Publicar</button>
-        </form>
-      }
-      <section aria-label="Publicaciones de la zona">
-        <label>Buscar por asunto
-          <input class="busqueda" type="search" [(ngModel)]="busqueda" placeholder="Ej. reparación o herramientas" />
-        </label>
-        @if (errorPerfiles) {
-          <p role="status">No se pudieron cargar los servicios de esta zona.</p>
-          <button type="button" [disabled]="ocupado || cargandoPerfiles" (click)="cargarPerfiles()">Reintentar</button>
+          <button type="button" class="ayni-secundario" (click)="recargar()" [disabled]="ocupado">
+            Actualizar
+          </button>
+          @if (zonaId && verificado) {
+            <button
+              type="button"
+              [attr.aria-expanded]="mostrarFormulario"
+              [disabled]="ocupado"
+              (click)="mostrarFormulario = !mostrarFormulario"
+            >
+              {{ mostrarFormulario ? 'Cerrar formulario' : '+ Publicar' }}
+            </button>
+          }
+        </div>
+        @if (ocupado) {
+          <p role="status">Procesando…</p>
         }
-        @if (avisoSolicitud) { <p role="status">{{ avisoSolicitud }}</p> }
-        @for (entrada of publicaciones; track entrada.clave) {
-          @if (entrada.perfil; as perfil) {
-              <article><strong>{{ perfil.nombre_establecimiento || perfil.alias }}</strong> · {{ nombresPerfil[perfil.tipo] }}
-                @if (perfil.nombre_establecimiento) { <p>Publicado por {{ perfil.alias }}</p> }
-                <p>{{ perfil.descripcion }}</p>
-                <p>{{ perfil.votos ? (perfil.confianza.toFixed(2) + '/5 · Votos: ' + perfil.votos) : 'Sin votos' }}</p>
+        @if (error) {
+          <p role="alert">{{ error }}</p>
+        }
+        @if (aviso) {
+          <p role="status">{{ aviso }}</p>
+        }
+        @if (zonaId && verificado && mostrarFormulario) {
+          <form class="ayni-tarjeta" (ngSubmit)="publicar()">
+            <h2>Nueva publicación</h2>
+            <label>
+              Qué quieres publicar
+              <select name="formato" [(ngModel)]="formato">
+                <option value="aviso">Aviso vecinal</option>
+                <option value="servicio">Servicio calificable</option>
+                <option value="establecimiento">Local o establecimiento</option>
+              </select>
+            </label>
+            @if (formato !== 'aviso') {
+              @if (formato === 'establecimiento') {
+                <label>
+                  Nombre del establecimiento
+                  <input name="establecimiento" [(ngModel)]="nombreEstablecimiento" maxlength="150" required />
+                </label>
+              }
+              <p>La publicación aparecerá junto a los avisos de la zona seleccionada.</p>
+              <label>
+                Categoría
+                <select name="categoriaServicio" [(ngModel)]="categoriaServicio" required>
+                  <option value="">Elige una categoría</option>
+                  @for (opcion of categorias; track opcion.id) {
+                    <option [value]="opcion.id">{{ opcion.nombre }}</option>
+                  }
+                </select>
+              </label>
+              @if (!categorias.length) {
+                <p>No hay categorías de trabajo activas disponibles.</p>
+              }
+            } @else {
+              <label>
+                Tipo
+                <select name="tipo" [(ngModel)]="tipo">
+                  <option value="OFREZCO">Ofrezco</option>
+                  <option value="NECESITO">Necesito</option>
+                </select>
+              </label>
+              <label>
+                Asunto
+                <input name="asunto" [(ngModel)]="categoria" maxlength="150" required />
+              </label>
+              <label>
+                Duración del aviso (horas)
+                <input
+                  name="duracion"
+                  type="number"
+                  [(ngModel)]="duracionHoras"
+                  min="1"
+                  max="720"
+                  step="1"
+                  required
+                />
+              </label>
+            }
+            <label>
+              Descripción
+              <textarea name="texto" [(ngModel)]="texto" maxlength="4000" required></textarea>
+            </label>
+            <button type="submit" [disabled]="ocupado">Publicar</button>
+          </form>
+        }
+        <section class="ayni-seccion" aria-labelledby="titulo-publicaciones">
+          <h2 id="titulo-publicaciones">Publicaciones de la zona</h2>
+          <label>
+            Buscar por asunto
+            <input type="search" [(ngModel)]="busqueda" placeholder="Ej. reparación o herramientas" />
+          </label>
+          @if (errorPerfiles) {
+            <p role="status">No se pudieron cargar los servicios de esta zona.</p>
+            <button type="button" [disabled]="ocupado || cargandoPerfiles" (click)="cargarPerfiles()">
+              Reintentar
+            </button>
+          }
+          @if (avisoSolicitud) {
+            <p role="status">{{ avisoSolicitud }}</p>
+          }
+          @for (entrada of publicaciones; track entrada.clave) {
+            @if (entrada.perfil; as perfil) {
+              <article class="ayni-tarjeta">
+                <h3>{{ perfil.nombre_establecimiento || perfil.alias }}</h3>
+                <span class="ayni-etiqueta">{{ nombresPerfil[perfil.tipo] }}</span>
+                @if (perfil.nombre_establecimiento) {
+                  <p>Publicado por {{ perfil.alias }}</p>
+                }
+                <p class="ayni-texto">{{ perfil.descripcion }}</p>
+                <p>
+                  {{ perfil.votos ? perfil.confianza.toFixed(2) + '/5 · Votos: ' + perfil.votos : 'Sin votos' }}
+                </p>
                 @if (usuarioId && perfil.usuarioId !== usuarioId) {
-                  <button type="button" [disabled]="enviandoSolicitud" (click)="elegirPerfil(perfil.id)">Solicitar</button>
+                  <button type="button" [disabled]="enviandoSolicitud" (click)="elegirPerfil(perfil.id)">
+                    Solicitar
+                  </button>
                 }
                 @if (perfilSolicitud === perfil.id) {
-                  <form (ngSubmit)="solicitar(perfil.id)">
-                    <label>Mensaje inicial
-                      <textarea name="mensaje" [(ngModel)]="mensajeSolicitud" maxlength="2000" required></textarea>
+                  <form class="ayni-seccion" (ngSubmit)="solicitar(perfil.id)">
+                    <label>
+                      Mensaje inicial
+                      <textarea
+                        name="mensaje"
+                        [(ngModel)]="mensajeSolicitud"
+                        maxlength="2000"
+                        required
+                      ></textarea>
                     </label>
-                    <button type="submit" [disabled]="enviandoSolicitud || !mensajeSolicitud.trim()">Enviar solicitud</button>
+                    <button type="submit" [disabled]="enviandoSolicitud || !mensajeSolicitud.trim()">
+                      Enviar solicitud
+                    </button>
                   </form>
                 }
               </article>
-          } @else if (entrada.aviso; as item) {
-        <article>
-          @if (usuarioId) {
-            <a class="aviso-enlace" [routerLink]="['/tabs/muro/aviso', item.id, usuarioId]">
-              <h2>{{ (item.tipo === 'OFREZCO' ? 'Ofrezco' : 'Necesito') + ' · ' + item.categoria }}</h2>
-              <p>{{ item.texto }}</p>
-              @if (item.expiraEn) { <p>Vence: {{ fechaVencimiento(item.expiraEn) }}</p> }
-              Ver aviso
-            </a>
-          }
-          @if (usuarioId && item.autorId === usuarioId) {
-            @if (avisoPorRetirar === item.id) {
-              <button type="button" [disabled]="ocupado" (click)="retirar(item.id)">Confirmar retiro</button>
-              <button type="button" [disabled]="ocupado" (click)="avisoPorRetirar = ''">Cancelar</button>
-            } @else {
-              <button type="button" [disabled]="ocupado" (click)="avisoPorRetirar = item.id">Retirar aviso</button>
+            } @else if (entrada.aviso; as item) {
+              <article class="ayni-tarjeta">
+                @if (usuarioId) {
+                  <a class="aviso-enlace" [routerLink]="['/tabs/muro/aviso', item.id, usuarioId]">
+                    <span class="ayni-etiqueta">{{ item.tipo === 'OFREZCO' ? 'Ofrezco' : 'Necesito' }}</span>
+                    <h3>{{ item.categoria }}</h3>
+                    <p class="ayni-texto">{{ item.texto }}</p>
+                    @if (item.expiraEn) {
+                      <p>
+                        <small>Vence: {{ fechaVencimiento(item.expiraEn) }}</small>
+                      </p>
+                    }
+                    <span class="ayni-enlace">Ver aviso</span>
+                  </a>
+                }
+                @if (usuarioId && item.autorId === usuarioId) {
+                  <div class="ayni-acciones">
+                    @if (avisoPorRetirar === item.id) {
+                      <button type="button" [disabled]="ocupado" (click)="retirar(item.id)">
+                        Confirmar retiro
+                      </button>
+                      <button
+                        type="button"
+                        class="ayni-secundario"
+                        [disabled]="ocupado"
+                        (click)="avisoPorRetirar = ''"
+                      >
+                        Cancelar
+                      </button>
+                    } @else {
+                      <button
+                        type="button"
+                        class="ayni-secundario"
+                        [disabled]="ocupado"
+                        (click)="avisoPorRetirar = item.id"
+                      >
+                        Retirar aviso
+                      </button>
+                    }
+                  </div>
+                }
+              </article>
+            }
+          } @empty {
+            @if (!ocupado && !cargandoPerfiles && !error && !errorPerfiles) {
+              <p class="ayni-vacio">
+                {{
+                  !zonaId
+                    ? 'No hay zonas disponibles.'
+                    : busqueda.trim()
+                      ? 'No encontramos coincidencias.'
+                      : 'Todavía no hay publicaciones en esta zona.'
+                }}
+              </p>
             }
           }
-        </article>
-
-          }
-        } @empty {
-          @if (!ocupado && !cargandoPerfiles && !error && !errorPerfiles) {
-            <p>{{ !zonaId ? 'No hay zonas disponibles.' : busqueda.trim() ? 'No encontramos coincidencias.' : 'Todavía no hay publicaciones en esta zona.' }}</p>
-          }
-        }
-      </section>
+        </section>
+      </main>
     </ion-content>
   `,
   styles: `
-    form, article { margin-block: 16px; padding: 12px; border: 1px solid var(--ion-color-medium); border-radius: 8px; }
-    label { display: block; margin-block: 10px; }
-    input, select, textarea, button { padding: 8px; border: 1px solid var(--ion-color-medium); border-radius: 4px; }
-    textarea { display: block; width: 100%; }
-    button { margin: 4px; background: var(--ion-color-primary); color: var(--ion-color-primary-contrast); }
-    button:disabled { opacity: .55; }
-    article p { overflow-wrap: anywhere; white-space: pre-wrap; }
-    .aviso-enlace { display: block; }
-    .busqueda { display: block; width: 100%; margin-top: 6px; }
-    button, .aviso-enlace { min-height: 44px; border-radius: 10px; }
-    button { font-weight: 600; padding-inline: 14px; }
-    .primario { background: var(--ion-color-primary); color: var(--ion-color-primary-contrast); }
-    select, input, textarea { max-width: 100%; min-height: 42px; }
+    .aviso-enlace { display: block; text-decoration: none; }
+    .aviso-enlace h3 { margin-top: 10px; }
+    .aviso-enlace p { color: var(--ion-text-color); font-weight: 400; }
+    .aviso-enlace .ayni-enlace { text-decoration: underline; }
   `,
 })
 export class MuroPage {

@@ -193,11 +193,9 @@ Ideas clave:
 
 ### Tema
 
-- **Modo normal:** tema claro. No sigue el modo oscuro del sistema a propósito.
-- **Pestaña Emergencia:** al entrar, `EmergenciaPage` añade las clases `ion-palette-dark` y `modo-emergencia` a `<html>`:
-  - fondo negro puro, que ahorra batería en pantallas OLED
-  - animaciones y transiciones desactivadas
-- Al salir de la pestaña, vuelve el tema claro.
+- **Modo cotidiano** usa verde petróleo `#176354`, fondo crema `#FBF6EE` y acento terracota `#8B482F`.
+- **Modo emergencia** se activa en Reportes. La clase `modo-emergencia` en `<html>` aplica índigo `#393B7A`, fondo lavanda `#F3F2FB` y etiquetas violeta `#604A82`, con animaciones y transiciones desactivadas.
+- Al desactivar el modo o salir de Reportes, vuelve la paleta cotidiana.
 
 ---
 

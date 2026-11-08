@@ -9,9 +9,12 @@ import { ApiService } from '../../core/services/api.service';
   imports: [IonContent, FormsModule],
   template: `
     <ion-content>
-      <main class="pantalla">
-        <section class="tarjeta" aria-labelledby="titulo">
-          <p class="marca">Ayni</p>
+      <main class="pantalla ayni-pagina">
+        <section class="tarjeta ayni-tarjeta" aria-labelledby="titulo">
+          <div class="marca">
+            <span aria-hidden="true">A</span>
+            <div><strong>Ayni</strong><small>Red vecinal de Arequipa</small></div>
+          </div>
           <h1 id="titulo">{{ registro ? 'Crea tu cuenta' : 'Inicia sesión' }}</h1>
           <p>Accede al mapa y a tu comunidad.</p>
           <form (ngSubmit)="entrar()">
@@ -40,7 +43,7 @@ import { ApiService } from '../../core/services/api.service';
               {{ cargando() ? 'Conectando…' : registro ? 'Crear cuenta' : 'Iniciar sesión' }}
             </button>
           </form>
-          <button type="button" class="alternar" [disabled]="cargando()" (click)="alternarFormulario()">
+          <button type="button" class="alternar ayni-secundario" [disabled]="cargando()" (click)="alternarFormulario()">
             {{ registro ? 'Volver a iniciar sesión' : 'Crear una cuenta' }}
           </button>
         </section>
@@ -51,28 +54,33 @@ import { ApiService } from '../../core/services/api.service';
     .pantalla {
       display: grid;
       place-items: center;
+      width: 100%;
       min-height: 100%;
-      padding: max(24px, env(safe-area-inset-top)) 24px max(24px, env(safe-area-inset-bottom));
-      background: #f9f0e7;
-      color: #261c18;
+      padding-block: max(24px, var(--ion-safe-area-top, 0px)) max(24px, var(--ion-safe-area-bottom, 0px));
+      background: radial-gradient(ellipse at top, #dceae2, transparent 66%), var(--ion-background-color);
     }
     .tarjeta {
-      width: min(100%, 420px);
-      background: #fff;
-      border: 1px solid #eadbd1;
+      width: min(100%, 28rem);
       border-radius: 24px;
-      padding: 28px;
+      padding: clamp(16px, 5vw, 32px);
     }
-    .marca { color: #a33220; font-size: 1.35rem; font-weight: 750; margin: 0 0 18px; }
-    h1 { font-size: 1.9rem; margin: 0; }
-    form { display: grid; gap: 10px; margin-top: 24px; }
-    label { font-weight: 600; }
-    input, button { min-height: 48px; padding: 10px 14px; border-radius: 12px; font: inherit; }
-    input { width: 100%; margin-bottom: 8px; border: 1px solid #ab9388; background: #fff; color: #261c18; }
-    button { background: #a33220; color: #fff; font-weight: 700; }
-    button:disabled { opacity: .65; }
-    .alternar { margin-top: 12px; background: transparent; color: #a33220; text-decoration: underline; }
-    .error { color: #9f231b; margin: 0 0 8px; }
+    .marca { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+    .marca span {
+      display: grid;
+      place-items: center;
+      flex: 0 0 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: var(--ion-color-primary);
+      color: var(--ion-color-primary-contrast);
+      font-size: 1.45rem;
+      font-weight: 800;
+    }
+    .marca strong, .marca small { display: block; }
+    .marca strong { color: var(--ayni-accent); font-size: 1.25rem; }
+    form { margin-top: 20px; }
+    .tarjeta button { width: 100%; }
+    .alternar { margin-top: 10px; }
   `,
 })
 export class LoginPage {

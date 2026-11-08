@@ -13,92 +13,170 @@ import { ApiService, type SolicitudApi, type VecinoParaAval } from '../../core/s
         <ion-title>Perfil</ion-title>
       </ion-toolbar>
     </ion-header>
-    <ion-content class="ion-padding">
-      <h1>Mi perfil</h1>
-      @if (perfil(); as vecino) {
-        <dl>
-          <dt>Alias</dt><dd>{{ vecino.alias }}</dd>
-          <dt>Estado de verificación</dt>
-          <dd>{{ vecino.verificado ? 'Cuenta verificada' : 'Cuenta sin verificar' }}</dd>
-        </dl>
-        @if (vecino.verificado === true || vecino.verificado === 1) {
-          <ion-button type="button" [attr.aria-expanded]="mostrarAval()" [disabled]="ocupadoAval()"
-            (click)="mostrarAval.set(!mostrarAval())">
-            {{ mostrarAval() ? 'Cerrar búsqueda' : 'Recomendar vecino' }}
-          </ion-button>
-          @if (mostrarAval()) {
-            <section aria-label="Recomendar vecino">
-              <p>Con dos avales de cuentas verificadas distintas, el vecino obtiene la verificación.</p>
-              <form (ngSubmit)="buscarVecinos()">
-                <label for="buscar-vecino">Alias o nombre de usuario</label>
-                <input id="buscar-vecino" name="consultaAval" type="search" [(ngModel)]="consultaAval"
-                  maxlength="150" [disabled]="ocupadoAval()" />
-                <ion-button type="submit" [disabled]="ocupadoAval() || consultaAval.trim().length < 2">Buscar</ion-button>
-              </form>
-              @if (avisoAval()) { <p role="status">{{ avisoAval() }}</p> }
-              @for (resultado of vecinosAval(); track resultado.id) {
-                <article>
-                  <strong>{{ resultado.alias }}</strong> · {{ resultado.nombre_acceso }}
-                  @if (resultado.ya_avalado) {
-                    <p>Ya recomendaste a esta cuenta.</p>
-                  } @else {
-                    <ion-button type="button" [disabled]="ocupadoAval()" (click)="recomendar(resultado)">
-                      Dar aval
+    <ion-content>
+      <main class="ayni-pagina">
+        <section class="ayni-encabezado" aria-labelledby="titulo-perfil">
+          <span class="ayni-etiqueta">Mi cuenta</span>
+          <h1 id="titulo-perfil">Mi perfil</h1>
+          <p>Consulta tu verificación, tus avales y tus solicitudes.</p>
+        </section>
+        @if (perfil(); as vecino) {
+          <dl class="ayni-tarjeta datos-perfil">
+            <dt>Alias</dt>
+            <dd class="alias">{{ vecino.alias }}</dd>
+            <dt>Estado de verificación</dt>
+            <dd>
+              <span class="ayni-etiqueta">
+                {{ vecino.verificado ? 'Cuenta verificada' : 'Cuenta sin verificar' }}
+              </span>
+            </dd>
+          </dl>
+          <section class="ayni-tarjeta" aria-labelledby="titulo-visto-bueno">
+            <h2 id="titulo-visto-bueno">Visto Bueno Vecinal</h2>
+            <p>Con dos avales de cuentas verificadas distintas, el vecino obtiene la verificación.</p>
+            @if (vecino.verificado === true || vecino.verificado === 1) {
+              <ion-button
+                class="accion-aval"
+                type="button"
+                [attr.aria-expanded]="mostrarAval()"
+                [disabled]="ocupadoAval()"
+                (click)="mostrarAval.set(!mostrarAval())"
+              >
+                {{ mostrarAval() ? 'Cerrar búsqueda' : 'Recomendar vecino' }}
+              </ion-button>
+              @if (mostrarAval()) {
+                <section class="ayni-seccion" aria-label="Recomendar vecino">
+                  <form (ngSubmit)="buscarVecinos()">
+                    <label for="buscar-vecino">Alias o nombre de usuario</label>
+                    <input
+                      id="buscar-vecino"
+                      name="consultaAval"
+                      type="search"
+                      [(ngModel)]="consultaAval"
+                      maxlength="150"
+                      [disabled]="ocupadoAval()"
+                    />
+                    <ion-button type="submit" [disabled]="ocupadoAval() || consultaAval.trim().length < 2">
+                      Buscar
+                    </ion-button>
+                  </form>
+                  @if (avisoAval()) {
+                    <p role="status">{{ avisoAval() }}</p>
+                  }
+                  @for (resultado of vecinosAval(); track resultado.id) {
+                    <article class="ayni-tarjeta">
+                      <h3>{{ resultado.alias }}</h3>
+                      <p>
+                        <small>{{ resultado.nombre_acceso }}</small>
+                      </p>
+                      @if (resultado.ya_avalado) {
+                        <p>Ya recomendaste a esta cuenta.</p>
+                      } @else {
+                        <ion-button type="button" [disabled]="ocupadoAval()" (click)="recomendar(resultado)">
+                          Dar aval
+                        </ion-button>
+                      }
+                    </article>
+                  }
+                </section>
+              }
+            }
+          </section>
+          <section class="ayni-seccion" aria-labelledby="titulo-solicitudes">
+            <h2 id="titulo-solicitudes">Mis solicitudes</h2>
+            <ion-button fill="outline" [disabled]="ocupado()" (click)="actualizarSolicitudes()">
+              Actualizar
+            </ion-button>
+            @if (aviso()) {
+              <p role="status">{{ aviso() }}</p>
+            }
+            @for (solicitud of solicitudes(); track solicitud.id) {
+              <article class="ayni-tarjeta">
+                <h3>{{ solicitud.vecino_id === vecino.id ? 'Enviada' : 'Recibida' }}</h3>
+                <span class="ayni-etiqueta">{{ solicitud.estado }}</span>
+                <p class="ayni-texto">{{ solicitud.mensaje_inicial }}</p>
+                <div class="ayni-acciones">
+                  @if (solicitud.estado === 'PENDIENTE' && solicitud.vecino_id !== vecino.id) {
+                    <ion-button [disabled]="ocupado()" (click)="cambiarEstado(solicitud.id, 'ACEPTADA')">
+                      Aceptar
+                    </ion-button>
+                    <ion-button
+                      fill="outline"
+                      [disabled]="ocupado()"
+                      (click)="cambiarEstado(solicitud.id, 'RECHAZADA')"
+                    >
+                      Rechazar
                     </ion-button>
                   }
-                </article>
+                  @if (solicitud.estado === 'ACEPTADA') {
+                    <ion-button [disabled]="ocupado()" (click)="cambiarEstado(solicitud.id, 'FINALIZADA')">
+                      Finalizar
+                    </ion-button>
+                  }
+                  @if (
+                    solicitud.estado === 'FINALIZADA' &&
+                    solicitud.vecino_id === vecino.id &&
+                    !solicitud.perfil_calificado
+                  ) {
+                    <label>
+                      Calificar perfil
+                      <select #estrellas>
+                        <option value="">Elige de 1 a 5 estrellas</option>
+                        @for (valor of valores; track valor) {
+                          <option [value]="valor">{{ valor }} / 5</option>
+                        }
+                      </select>
+                    </label>
+                    <ion-button [disabled]="ocupado()" (click)="votar(solicitud.id, estrellas.value)">
+                      Guardar voto
+                    </ion-button>
+                  }
+                  @if (
+                    solicitud.estado === 'FINALIZADA' &&
+                    solicitud.vecino_id !== vecino.id &&
+                    !solicitud.vecino_calificado
+                  ) {
+                    <label>
+                      Calificar al vecino
+                      <select #nota>
+                        <option value="">Elige de 1 a 5 estrellas</option>
+                        @for (valor of valores; track valor) {
+                          <option [value]="valor">{{ valor }} / 5</option>
+                        }
+                      </select>
+                    </label>
+                    <ion-button [disabled]="ocupado()" (click)="calificarVecino(solicitud.id, nota.value)">
+                      Guardar calificación
+                    </ion-button>
+                  }
+                </div>
+              </article>
+            } @empty {
+              @if (!ocupado() && !aviso()) {
+                <p class="ayni-vacio">Todavía no hay solicitudes.</p>
               }
-            </section>
-          }
+            }
+          </section>
+        } @else if (error()) {
+          <p role="alert">No se pudo cargar tu perfil.</p>
+          <ion-button fill="outline" (click)="cargarPerfil()">Reintentar</ion-button>
+        } @else {
+          <p role="status">Cargando perfil…</p>
         }
-        <h2>Mis solicitudes</h2>
-        <ion-button fill="outline" [disabled]="ocupado()" (click)="actualizarSolicitudes()">Actualizar</ion-button>
-        @if (aviso()) { <p role="status">{{ aviso() }}</p> }
-        @for (solicitud of solicitudes(); track solicitud.id) {
-          <article>
-            <h3>{{ solicitud.vecino_id === vecino.id ? 'Enviada' : 'Recibida' }} · {{ solicitud.estado }}</h3>
-            <p>{{ solicitud.mensaje_inicial }}</p>
-            @if (solicitud.estado === 'PENDIENTE' && solicitud.vecino_id !== vecino.id) {
-              <ion-button [disabled]="ocupado()" (click)="cambiarEstado(solicitud.id, 'ACEPTADA')">Aceptar</ion-button>
-              <ion-button [disabled]="ocupado()" (click)="cambiarEstado(solicitud.id, 'RECHAZADA')">Rechazar</ion-button>
-            }
-            @if (solicitud.estado === 'ACEPTADA') {
-              <ion-button [disabled]="ocupado()" (click)="cambiarEstado(solicitud.id, 'FINALIZADA')">Finalizar</ion-button>
-            }
-            @if (solicitud.estado === 'FINALIZADA' && solicitud.vecino_id === vecino.id && !solicitud.perfil_calificado) {
-              <label>Calificar perfil
-                <select #estrellas>
-                  <option value="">Elige de 1 a 5 estrellas</option>
-                  @for (valor of valores; track valor) {
-                    <option [value]="valor">{{ valor }} / 5</option>
-                  }
-                </select>
-              </label>
-              <ion-button [disabled]="ocupado()" (click)="votar(solicitud.id, estrellas.value)">Guardar voto</ion-button>
-            }
-            @if (solicitud.estado === 'FINALIZADA' && solicitud.vecino_id !== vecino.id && !solicitud.vecino_calificado) {
-              <label>Calificar al vecino
-                <select #nota>
-                  <option value="">Elige de 1 a 5 estrellas</option>
-                  @for (valor of valores; track valor) {
-                    <option [value]="valor">{{ valor }} / 5</option>
-                  }
-                </select>
-              </label>
-              <ion-button [disabled]="ocupado()" (click)="calificarVecino(solicitud.id, nota.value)">Guardar calificación</ion-button>
-            }
-          </article>
-        } @empty {
-          @if (!ocupado() && !aviso()) { <p>Todavía no hay solicitudes.</p> }
-        }
-      } @else if (error()) {
-        <p role="alert">No se pudo cargar tu perfil.</p>
-        <ion-button fill="outline" (click)="cargarPerfil()">Reintentar</ion-button>
-      } @else {
-        <p role="status">Cargando perfil…</p>
-      }
-      <ion-button (click)="salir()">Cerrar sesión</ion-button>
+        <div class="ayni-seccion">
+          <ion-button fill="outline" (click)="salir()">Cerrar sesión</ion-button>
+        </div>
+      </main>
     </ion-content>
+  `,
+  styles: `
+    .datos-perfil dt { color: var(--ayni-muted); font-size: 0.875rem; font-weight: 650; }
+    .datos-perfil dd { margin: 4px 0 14px; }
+    .datos-perfil dd:last-child { margin-bottom: 0; }
+    .datos-perfil .alias { font-size: 1.25rem; font-weight: 750; }
+    .accion-aval { margin-top: 8px; }
+    .ayni-acciones:empty { display: none; }
+    .ayni-acciones label { flex: 1 1 14rem; min-width: 0; }
   `,
 })
 export class PerfilPage {
