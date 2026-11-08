@@ -5,13 +5,18 @@ import { FormsModule } from '@angular/forms';
 import * as L from 'leaflet';
 import { firstValueFrom } from 'rxjs';
 
-import { ApiService, type Centro, type ZonaDisponible } from '../../core';
+import { ApiService, type Centro, type TipoPerfil, type ZonaDisponible } from '../../core';
 
 import { ESTILO_CENTRO, iconoCentro } from './centro-iconos';
 
 /** Plaza de Armas de Arequipa. */
 const CENTRO_INICIAL: L.LatLngTuple = [-16.3989, -71.5369];
 const ZOOM_INICIAL = 16;
+const NOMBRES_PERFIL: Record<TipoPerfil, string> = {
+  SERVICIO: 'Servicio',
+  TIENDA: 'Tienda',
+  APOYO: 'Apoyo',
+};
 
 @Component({
   selector: 'app-mapa',
@@ -34,14 +39,56 @@ const ZOOM_INICIAL = 16;
               </select>
             </label>
           }
+          @if (zonas.length) {
+            <label>Tipo de centro
+              <select [ngModel]="tipoCentro" (ngModelChange)="filtrarCentros($event)" [disabled]="cargando || !centros.length">
+                <option value="">Todos</option>
+                @for (tipo of tiposCentro; track tipo.id) {
+                  <option [value]="tipo.id">{{ tipo.etiqueta }}</option>
+                }
+              </select>
+            </label>
+          }
           @if (estado) { <p role="status">{{ estado }}</p> }
         </section>
       }
+      <details class="directorio" (toggle)="abrirDirectorio($event)">
+        <summary>Directorio vecinal</summary>
+        <p>Perfiles que atienden en la Plaza de Armas de Arequipa. Ubicación fija para la demo.</p>
+        <label>Tipo de perfil
+          <select [(ngModel)]="tipoPerfil">
+            <option value="">Todos</option>
+            @for (tipo of tiposPerfil; track tipo.id) {
+              <option [value]="tipo.id">{{ tipo.etiqueta }}</option>
+            }
+          </select>
+        </label>
+        @if (cargandoPerfiles) {
+          <p role="status">Cargando perfiles…</p>
+        } @else if (errorPerfiles) {
+          <p role="status">No se pudo cargar el directorio.</p>
+          <button type="button" (click)="cargarPerfiles()">Reintentar</button>
+        } @else if (perfiles) {
+          <ul>
+            @for (perfil of perfilesVisibles; track perfil.id) {
+              <li><strong>{{ perfil.alias }}</strong> · {{ nombresPerfil[perfil.tipo] }}
+                <p>{{ perfil.descripcion }}</p>
+              </li>
+            } @empty {
+              <li>No hay perfiles que coincidan con esta búsqueda.</li>
+            }
+          </ul>
+        }
+      </details>
       <div #mapa class="mapa"></div>
     </ion-content>
   `,
   styles: `
-    .conexion { padding: 12px; }
+    .conexion { padding: 12px; display: flex; flex-wrap: wrap; gap: 8px 16px; }
+    .conexion label { display: grid; gap: 4px; }
+    .conexion p { flex-basis: 100%; margin: 0; }
+    .directorio { padding: 12px; }
+    .directorio summary { cursor: pointer; font-weight: 600; }
     .mapa {
       height: 100%;
       width: 100%;
@@ -55,9 +102,43 @@ export class MapaPage implements ViewDidEnter, OnDestroy {
   cargando = false;
   zonas: ZonaDisponible[] = [];
   zonaId = '';
+  centros: Centro[] = [];
+  tipoCentro = '';
+  tipoPerfil = '';
+  perfiles?: Array<{ id: string; alias: string; tipo: TipoPerfil; descripcion: string }>;
+  cargandoPerfiles = false;
+  errorPerfiles = false;
+  readonly nombresPerfil = NOMBRES_PERFIL;
+  readonly tiposPerfil = Object.entries(NOMBRES_PERFIL).map(([id, etiqueta]) => ({ id, etiqueta }));
+  readonly tiposCentro = Object.entries(ESTILO_CENTRO).map(([id, { etiqueta }]) => ({ id, etiqueta }));
   private marcadores?: L.LayerGroup;
   private readonly contenedor = viewChild.required<ElementRef<HTMLDivElement>>('mapa');
   private mapa?: L.Map;
+
+  get perfilesVisibles() {
+    return this.perfiles?.filter(p => !this.tipoPerfil || p.tipo === this.tipoPerfil) ?? [];
+  }
+
+  abrirDirectorio(event: Event): void {
+    if ((event.currentTarget as HTMLDetailsElement).open && !this.perfiles && !this.errorPerfiles) {
+      void this.cargarPerfiles();
+    }
+  }
+
+  async cargarPerfiles(): Promise<void> {
+    if (this.cargandoPerfiles) return;
+    this.cargandoPerfiles = true;
+    this.errorPerfiles = false;
+    try {
+      const [latitud, longitud] = CENTRO_INICIAL;
+      this.perfiles = await firstValueFrom(this.api.getPerfiles(latitud, longitud));
+    } catch {
+      this.errorPerfiles = true;
+    } finally {
+      this.cargandoPerfiles = false;
+      this.cambios.markForCheck();
+    }
+  }
 
   async ionViewDidEnter(): Promise<void> {
     if (this.mapa) {
@@ -106,17 +187,32 @@ export class MapaPage implements ViewDidEnter, OnDestroy {
 
   async cargarCentros(): Promise<void> {
     this.cargando = true;
+    this.estado = 'Cargando centros…';
+    this.centros = [];
     this.marcadores?.clearLayers();
     try {
-      const centros = await firstValueFrom(this.api.getCentros(this.zonaId));
-      this.pintarCentros(centros);
-      if (centros.length) this.mapa?.fitBounds(centros.map(c => [c.ubicacion.lat, c.ubicacion.lng]), { maxZoom: 16 });
-      this.estado = this.api.usaMocks ? '' : 'Centros cargados: ' + centros.length;
+      this.centros = await firstValueFrom(this.api.getCentros(this.zonaId));
+      this.filtrarCentros(this.tipoCentro);
     } catch {
       this.estado = 'No se pudieron cargar los centros.';
     } finally {
       this.cargando = false;
       this.cambios.markForCheck();
+    }
+  }
+
+  filtrarCentros(tipo: string): void {
+    this.tipoCentro = tipo;
+    const visibles = this.centros.filter(c => !tipo || c.tipo === tipo);
+    this.marcadores?.clearLayers();
+    this.pintarCentros(visibles);
+    if (visibles.length) {
+      this.mapa?.fitBounds(visibles.map(c => [c.ubicacion.lat, c.ubicacion.lng]), { maxZoom: 16 });
+      this.estado = 'Centros visibles: ' + visibles.length;
+    } else {
+      this.estado = this.centros.length
+        ? 'No hay centros de este tipo en la zona.'
+        : 'Esta zona aún no tiene centros registrados.';
     }
   }
 
@@ -128,7 +224,19 @@ export class MapaPage implements ViewDidEnter, OnDestroy {
   private pintarCentros(centros: Centro[]): void {
     for (const c of centros) {
       const popup = document.createElement('div');
-      popup.textContent = [c.nombre, ESTILO_CENTRO[c.tipo].etiqueta, c.horario].filter(Boolean).join(' · ');
+      const nombre = document.createElement('strong');
+      nombre.textContent = c.nombre;
+      popup.append(nombre);
+      for (const texto of [
+        ESTILO_CENTRO[c.tipo].etiqueta,
+        c.horario?.trim() && 'Horario: ' + c.horario,
+        c.contactoPublico?.trim() && 'Contacto: ' + c.contactoPublico,
+      ]) {
+        if (!texto) continue;
+        const linea = document.createElement('div');
+        linea.textContent = texto;
+        popup.append(linea);
+      }
       L.marker([c.ubicacion.lat, c.ubicacion.lng], { icon: iconoCentro(c.tipo), title: c.nombre })
         .bindPopup(popup)
         .addTo(this.marcadores!);

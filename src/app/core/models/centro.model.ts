@@ -9,4 +9,5 @@ export interface Centro {
   tipo: TipoCentro;
   ubicacion: LatLng;
   horario: string;
+  contactoPublico?: string | null;
 }

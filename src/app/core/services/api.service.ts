@@ -15,6 +15,7 @@ type CentroApi = Omit<Centro, 'ubicacion' | 'horario'> & {
   lat: number;
   lng: number;
   horario: string | null;
+  contacto_publico: string | null;
 };
 
 type ReporteApi = Omit<Reporte, 'ubicacion' | 'creadoEn' | 'expiraEn'> & {
@@ -39,10 +40,19 @@ export class ApiService {
   }
 
   async iniciarSesion(nombreAcceso: string, password: string): Promise<void> {
-    const session = await this.request<{ accessToken: string; expiresIn: number }>('POST', 'auth/login', {
-      nombreAcceso,
-      password,
-    });
+    await this.autenticar('auth/login', { nombreAcceso, password });
+  }
+
+  async registrar(alias: string, nombreAcceso: string, password: string): Promise<void> {
+    await this.autenticar('auth/registro', { alias, nombreAcceso, password });
+  }
+
+  getMiPerfil(): Promise<{ alias: string; verificado: boolean | number }> {
+    return this.request('GET', 'usuarios/me');
+  }
+
+  private async autenticar(ruta: string, datos: object): Promise<void> {
+    const session = await this.request<{ accessToken: string; expiresIn: number }>('POST', ruta, datos);
     this.expiraEn = Date.now() + session.expiresIn * 1000;
     this.token.set(session.accessToken);
   }
@@ -58,14 +68,21 @@ export class ApiService {
   getCentros(zonaId?: string): Observable<Centro[]> {
     if (this.usaMocks) return this.mock<Centro[]>('centros.json');
     return from(this.request<CentroApi[]>('GET', 'centros', undefined, { zonaId: zonaId ?? '' })).pipe(
-      map((centros) => centros.map(({ id, nombre, tipo, lat, lng, horario }) => ({
-        id, nombre, tipo, ubicacion: { lat, lng }, horario: horario ?? '',
+      map((centros) => centros.map(({ id, nombre, tipo, lat, lng, horario, contacto_publico }) => ({
+        id, nombre, tipo, ubicacion: { lat, lng }, horario: horario ?? '', contactoPublico: contacto_publico,
       }))),
     );
   }
 
-  getPerfiles(lat: number, lng: number) {
-    if (this.usaMocks) return this.mock<Perfil[]>('perfiles.json');
+  getPerfiles(lat: number, lng: number): Observable<Array<{
+    id: string; usuarioId: string; alias: string; tipo: Perfil['tipo']; descripcion: string; confianza: number;
+    categoriaId?: string;
+  }>> {
+    if (this.usaMocks) {
+      return this.mock<Perfil[]>('perfiles.json').pipe(
+        map(perfiles => perfiles.map(perfil => ({ ...perfil, alias: perfil.categoria }))),
+      );
+    }
     return from(this.request<Array<{
       id: string; usuario_id: string; categoria_id: string; alias: string;
       tipo: Perfil['tipo']; descripcion: string; confianza: number;
@@ -156,7 +173,11 @@ export class ApiService {
       const response = await CapacitorHttp.request({
         method, url, headers, data, params, connectTimeout: 8000, readTimeout: 10000,
       });
-      if (response.status >= 400) throw new Error('El servidor respondió con HTTP ' + response.status);
+      if (response.status >= 400) {
+        throw Object.assign(new Error('El servidor respondió con HTTP ' + response.status), {
+          status: response.status,
+        });
+      }
       return response.data as T;
     }
     return firstValueFrom(this.http.request<T>(method, url, { headers, body: data, params }));
