@@ -96,7 +96,9 @@ export class MapaPage implements ViewDidEnter, OnDestroy {
       this.mapa.invalidateSize();
       return;
     }
-    this.mapa = L.map(this.contenedor().nativeElement, { zoomControl: true }).setView(CENTRO_INICIAL, ZOOM_INICIAL);
+    this.mapa = L.map(this.contenedor().nativeElement, { zoomControl: false }).setView(CENTRO_INICIAL, ZOOM_INICIAL);
+    // Abajo a la derecha, al alcance del pulgar.
+    L.control.zoom({ position: 'bottomright' }).addTo(this.mapa);
 
     // ------------------------------------------------------------------------------
     // MAPA OFFLINE (pendiente):
@@ -157,7 +159,7 @@ export class MapaPage implements ViewDidEnter, OnDestroy {
     this.marcadores?.clearLayers();
     this.pintarCentros(visibles);
     if (visibles.length) {
-      this.mapa?.fitBounds(visibles.map(c => [c.ubicacion.lat, c.ubicacion.lng]), { maxZoom: 16 });
+      this.mapa?.fitBounds(visibles.map(c => [c.ubicacion.lat, c.ubicacion.lng]), { maxZoom: 16, padding: [40, 48] });
       this.estado = 'Centros visibles: ' + visibles.length;
     } else {
       this.estado = this.centros.length

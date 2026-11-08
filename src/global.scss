@@ -228,15 +228,138 @@ ion-app ion-title {
   color: var(--ion-text-color);
 }
 
-/* Marcadores de centros de ayuda (ver features/mapa/centro-iconos.ts) */
+/* Base cartográfica más apagada: los pines son lo que debe destacar. */
+.leaflet-tile-pane {
+  filter: saturate(0.55);
+}
+
+/*
+ * Marcadores de centros de ayuda (ver features/mapa/centro-iconos.ts).
+ * Forma de pin: el color indica la familia del centro y el icono, su tipo.
+ */
 .ayni-marcador span {
   display: flex;
+  box-sizing: border-box;
   align-items: center;
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: 50%;
   border: 2px solid #fff;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
-  font-size: 18px;
+  border-radius: 50% 50% 50% 0;
+  box-shadow: 0 2px 6px rgb(30 43 39 / 40%);
+  transform: rotate(-45deg);
+}
+
+.ayni-marcador svg {
+  width: 18px;
+  height: 18px;
+  fill: #fff;
+  stroke: #fff;
+  transform: rotate(45deg);
+}
+
+/*
+ * Modo emergencia: el índigo no se lee como texto sobre negro y las superficies grandes
+ * gastan batería, así que aquí los rellenos pasan a contornos y el texto a lavanda.
+ */
+html.modo-emergencia {
+  ion-app ion-toolbar {
+    --background: #000000;
+    --border-color: var(--ayni-emergency-primary);
+    --border-style: solid;
+    --border-width: 0 0 2px;
+  }
+
+  ion-tab-bar {
+    --border: 0;
+    border-top: 2px solid var(--ayni-emergency-primary);
+    box-shadow: none;
+  }
+
+  ion-tab-button {
+    --color-selected: #f3f2fb;
+  }
+
+  ion-tab-button.tab-selected ion-icon {
+    background: var(--ayni-emergency-primary);
+    color: #ffffff;
+  }
+
+  .ayni-pagina a {
+    color: #f3f2fb;
+  }
+
+  .ayni-pagina button {
+    border-color: #7e80c8;
+  }
+
+  .ayni-pagina button.ayni-secundario {
+    border-color: var(--ayni-control-border);
+    color: #f3f2fb;
+  }
+
+  .ayni-pagina ion-button.button-outline {
+    --border-color: var(--ayni-control-border);
+    --color: #f3f2fb;
+    --color-activated: #f3f2fb;
+    --color-focused: #f3f2fb;
+    --color-hover: #f3f2fb;
+  }
+
+  .ayni-pagina .ayni-encabezado {
+    border: 1px solid var(--ayni-border);
+    background: #000000;
+    color: var(--ion-text-color);
+  }
+
+  .ayni-etiqueta,
+  .ayni-pagina p[role='status'],
+  .ayni-pagina p[role='alert'],
+  .ayni-pagina p.ayni-vacio {
+    border: 1px solid var(--ayni-border);
+  }
+
+  .ayni-pagina .emergencia {
+    color: var(--ion-text-color);
+  }
+
+  .pantalla.ayni-pagina {
+    background: #000000;
+  }
+
+  /* Se oscurecen solo las teselas, no los pines. */
+  .leaflet-container {
+    background: #000000;
+  }
+
+  .leaflet-tile-pane {
+    filter: invert(1) hue-rotate(180deg) brightness(0.75);
+  }
+
+  .leaflet-control-attribution {
+    background: #000000 !important;
+    color: var(--ayni-muted);
+  }
+
+  .leaflet-container .leaflet-control-attribution a,
+  .leaflet-container a.leaflet-popup-close-button {
+    color: var(--ayni-muted);
+  }
+
+  .leaflet-bar {
+    border: 1px solid var(--ayni-border);
+  }
+
+  .leaflet-bar a {
+    border-bottom-color: var(--ayni-border);
+  }
+
+  .ayni-pagina .ayni-mapa .leaflet-bar a {
+    color: #f3f2fb;
+  }
+
+  .ayni-mapa .leaflet-popup-content-wrapper,
+  .ayni-mapa .leaflet-popup-tip {
+    border: 1px solid var(--ayni-border);
+  }
 }

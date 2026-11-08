@@ -28,7 +28,7 @@ export class UbicacionReporteComponent implements AfterViewInit, OnDestroy {
     let marcador: L.CircleMarker | undefined;
     mapa.on('click', ({ latlng }: L.LeafletMouseEvent) => {
       if (marcador) marcador.setLatLng(latlng);
-      else marcador = L.circleMarker(latlng, { radius: 9, color: '#a33220', fillOpacity: 0.85 }).addTo(mapa);
+      else marcador = L.circleMarker(latlng, { radius: 9, color: '#ffffff', weight: 3, fillColor: '#8b482f', fillOpacity: 1 }).addTo(mapa);
       const punto = latlng.wrap();
       this.elegido.emit({ lat: punto.lat, lng: punto.lng === -180 ? 180 : punto.lng });
     });

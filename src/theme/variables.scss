@@ -26,23 +26,38 @@
   --ayni-emergency-border: #dcd9ec;
 }
 
+// Modo emergencia de toda la app (ver ModoEmergenciaService). Fondo NEGRO puro: en pantallas
+// OLED los píxeles negros no consumen energía. El índigo rellena los botones, y el índigo y el
+// violeta marcan bordes y separaciones. No alcanzan 3:1 sobre negro, así que el texto y los
+// bordes de los campos usan tonos lavanda de la misma familia.
 html.modo-emergencia {
+  color-scheme: dark;
+
   --ion-color-primary: var(--ayni-emergency-primary);
   --ion-color-primary-rgb: 57, 59, 122;
   --ion-color-primary-shade: #32346b;
   --ion-color-primary-tint: #4d4f87;
-  --ion-background-color: var(--ayni-emergency-background);
-  --ion-background-color-rgb: 243, 242, 251;
-  --ion-text-color: #252542;
-  --ion-text-color-rgb: 37, 37, 66;
+  --ion-background-color: #000000;
+  --ion-background-color-rgb: 0, 0, 0;
+  --ion-text-color: #f3f2fb;
+  --ion-text-color-rgb: 243, 242, 251;
 
-  --ayni-accent: var(--ayni-emergency-accent);
-  --ayni-accent-soft: var(--ayni-emergency-accent-soft);
-  --ayni-surface: #fdfcff;
-  --ayni-muted: #565570;
-  --ayni-border: var(--ayni-emergency-border);
-  --ayni-control-border: #8b87a3;
-  --ayni-shadow: 0 6px 20px rgb(57 59 122 / 8%);
+  --ayni-accent: #c9c6e3;
+  --ayni-accent-soft: #000000;
+  --ayni-surface: #000000;
+  --ayni-muted: #c9c6e3;
+  --ayni-border: #604a82;
+  --ayni-control-border: #9a8fc4;
+  --ayni-shadow: none;
+
+  --ayni-emergency-background: #000000;
+  --ayni-emergency-accent: #c9c6e3;
+  --ayni-emergency-accent-soft: #000000;
+  --ayni-emergency-border: #604a82;
+
+  body {
+    background: #000000;
+  }
 
   *,
   *::before,

@@ -1,10 +1,9 @@
 import { ChangeDetectorRef, Component, inject } from '@angular/core';
-import { DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular';
 import { firstValueFrom } from 'rxjs';
 
-import { ApiService, NetworkService, OfflineQueueService, generarUuid, type ZonaDisponible, type Reporte, type LatLng } from '../../core';
+import { ApiService, ModoEmergenciaService, NetworkService, OfflineQueueService, generarUuid, type ZonaDisponible, type Reporte, type LatLng } from '../../core';
 import { UbicacionReporteComponent } from './ubicacion-reporte.component';
 
 @Component({
@@ -179,8 +178,7 @@ import { UbicacionReporteComponent } from './ubicacion-reporte.component';
 export class ReportesPage {
   readonly network = inject(NetworkService);
   readonly cola = inject(OfflineQueueService);
-  private readonly document = inject(DOCUMENT);
-  emergencia = false;
+  private readonly modoEmergencia = inject(ModoEmergenciaService);
   mostrarFormulario = false;
   private readonly api = inject(ApiService);
   private readonly cambios = inject(ChangeDetectorRef);
@@ -203,13 +201,12 @@ export class ReportesPage {
     void this.recargar();
   }
 
-  ionViewWillLeave(): void {
-    this.cambiarEmergencia(false);
+  get emergencia(): boolean {
+    return this.modoEmergencia.activo();
   }
 
   cambiarEmergencia(activa: boolean): void {
-    this.emergencia = activa;
-    this.document.documentElement.classList.toggle('modo-emergencia', activa);
+    this.modoEmergencia.cambiar(activa);
   }
 
   cambiarZona(id: string): void {

@@ -175,7 +175,7 @@ src/
 │   └── tabs/                     ← barra de pestañas y rutas
 ├── assets/mock/                  ← datos de ejemplo (centros, perfiles, reportes, muro, usuarios)
 ├── environments/                 ← URL del backend, uso de mocks
-└── theme/variables.scss          ← tema claro + tema de emergencia (negro OLED)
+└── theme/variables.scss          ← tema cotidiano + tema de emergencia (negro OLED)
 ```
 
 Ideas clave:
@@ -194,8 +194,10 @@ Ideas clave:
 ### Tema
 
 - **Modo cotidiano** usa verde petróleo `#176354`, fondo crema `#FBF6EE` y acento terracota `#8B482F`.
-- **Modo emergencia** se activa en Reportes. La clase `modo-emergencia` en `<html>` aplica índigo `#393B7A`, fondo lavanda `#F3F2FB` y etiquetas violeta `#604A82`, con animaciones y transiciones desactivadas.
-- Al desactivar el modo o salir de Reportes, vuelve la paleta cotidiana.
+- **Modo emergencia** se activa y se desactiva en Reportes, pero se aplica a toda la app, como un modo oscuro: `ModoEmergenciaService` añade la clase `modo-emergencia` a `<html>` y recuerda la elección en el dispositivo.
+  - fondo negro puro, que ahorra batería en pantallas OLED
+  - botones índigo `#393B7A`, bordes y separaciones en índigo y violeta `#604A82`, texto lavanda `#F3F2FB`
+  - animaciones y transiciones desactivadas
 
 ---
 

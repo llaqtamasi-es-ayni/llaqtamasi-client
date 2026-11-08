@@ -1,12 +1,8 @@
-import { DOCUMENT } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { IonContent, IonHeader, IonTitle, IonToolbar, type ViewWillEnter, type ViewWillLeave } from '@ionic/angular';
+import { IonContent, IonHeader, IonTitle, IonToolbar } from '@ionic/angular';
 
 import { NetworkService, OfflineQueueService } from '../../core';
 import { PagePlaceholderComponent } from '../../shared';
-
-/** Clases en <html> que activan el tema de emergencia (ver src/theme/variables.scss). */
-const CLASE_EMERGENCIA = 'modo-emergencia';
 
 @Component({
   selector: 'app-emergencia',
@@ -24,7 +20,7 @@ const CLASE_EMERGENCIA = 'modo-emergencia';
       </p>
       <app-page-placeholder
         titulo="Modo emergencia"
-        descripcion="Vista con paleta índigo y lavanda, sin animaciones."
+        descripcion="Funciona sin internet y ahorra batería: fondo negro (pantallas OLED), sin animaciones y GPS solo bajo demanda."
         [pendientes]="[
           'Centros de ayuda cercanos guardados para uso offline',
           'Reportar emergencia en máximo 3 toques (queda en cola si no hay red)',
@@ -39,16 +35,7 @@ const CLASE_EMERGENCIA = 'modo-emergencia';
     }
   `,
 })
-export class EmergenciaPage implements ViewWillEnter, ViewWillLeave {
+export class EmergenciaPage {
   protected readonly network = inject(NetworkService);
   protected readonly cola = inject(OfflineQueueService);
-  private readonly document = inject(DOCUMENT);
-
-  ionViewWillEnter(): void {
-    this.document.documentElement.classList.add(CLASE_EMERGENCIA);
-  }
-
-  ionViewWillLeave(): void {
-    this.document.documentElement.classList.remove(CLASE_EMERGENCIA);
-  }
 }
