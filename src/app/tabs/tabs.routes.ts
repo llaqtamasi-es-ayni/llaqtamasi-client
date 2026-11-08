@@ -16,12 +16,17 @@ export const routes: Routes = [
         loadComponent: () => import('../features/muro/muro.page').then((m) => m.MuroPage),
       },
       {
+        path: 'muro/aviso/:publicacion/:interesado',
+        loadComponent: () => import('../features/muro/aviso-muro.page').then(m => m.AvisoMuroPage),
+      },
+      {
         path: 'reportes',
         loadComponent: () => import('../features/reportes/reportes.page').then((m) => m.ReportesPage),
       },
       {
         path: 'emergencia',
-        loadComponent: () => import('../features/emergencia/emergencia.page').then((m) => m.EmergenciaPage),
+        redirectTo: '/tabs/reportes',
+        pathMatch: 'full',
       },
       {
         path: 'perfil',

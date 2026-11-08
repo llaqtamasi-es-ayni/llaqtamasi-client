@@ -1,38 +1,48 @@
-// Tema de Ayni. Docs: https://ionicframework.com/docs/theming/
-
-// ---------------------------------------------------------------------------
-// Modo normal: tema claro (paleta por defecto de Ionic).
-// ---------------------------------------------------------------------------
 :root {
-  --ion-color-primary: #b5452b; // terracota (sillar / tierra arequipeña)
-  --ion-color-primary-rgb: 181, 69, 43;
+  --ion-font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --ion-color-primary: #176354;
+  --ion-color-primary-rgb: 23, 99, 84;
   --ion-color-primary-contrast: #ffffff;
   --ion-color-primary-contrast-rgb: 255, 255, 255;
-  --ion-color-primary-shade: #9f3d26;
-  --ion-color-primary-tint: #bc5840;
+  --ion-color-primary-shade: #14574a;
+  --ion-color-primary-tint: #2e7365;
+  --ion-background-color: #fbf6ee;
+  --ion-background-color-rgb: 251, 246, 238;
+  --ion-text-color: #1d2d28;
+  --ion-text-color-rgb: 29, 45, 40;
+
+  --ayni-accent: #8b482f;
+  --ayni-accent-soft: #f4e5da;
+  --ayni-surface: #fffdf9;
+  --ayni-muted: #4e6159;
+  --ayni-border: #dfd8cd;
+  --ayni-control-border: #8b9289;
+  --ayni-shadow: 0 6px 20px rgb(34 47 41 / 7%);
+
+  --ayni-emergency-primary: #393b7a;
+  --ayni-emergency-background: #f3f2fb;
+  --ayni-emergency-accent: #604a82;
+  --ayni-emergency-accent-soft: #e9e3f5;
+  --ayni-emergency-border: #dcd9ec;
 }
 
-// ---------------------------------------------------------------------------
-// Modo emergencia: fondo NEGRO puro (en OLED los píxeles negros no consumen
-// energía) y sin animaciones ni transiciones. Lo activa EmergenciaPage añadiendo
-// .ion-palette-dark y .modo-emergencia a <html>.
-// ---------------------------------------------------------------------------
-// Doble clase para ganar en especificidad a `.ion-palette-dark.md` / `.ion-palette-dark.ios` de Ionic.
-html.ion-palette-dark.modo-emergencia {
-  --ion-background-color: #000000;
-  --ion-background-color-rgb: 0, 0, 0;
-  --ion-text-color: #ffffff;
-  --ion-text-color-rgb: 255, 255, 255;
-  --ion-toolbar-background: #000000;
-  --ion-tab-bar-background: #000000;
-  --ion-item-background: #000000;
-  --ion-card-background: #0a0a0a;
-  --ion-color-primary: #ff6b4a;
-  --ion-color-primary-rgb: 255, 107, 74;
+html.modo-emergencia {
+  --ion-color-primary: var(--ayni-emergency-primary);
+  --ion-color-primary-rgb: 57, 59, 122;
+  --ion-color-primary-shade: #32346b;
+  --ion-color-primary-tint: #4d4f87;
+  --ion-background-color: var(--ayni-emergency-background);
+  --ion-background-color-rgb: 243, 242, 251;
+  --ion-text-color: #252542;
+  --ion-text-color-rgb: 37, 37, 66;
 
-  body {
-    background: #000000;
-  }
+  --ayni-accent: var(--ayni-emergency-accent);
+  --ayni-accent-soft: var(--ayni-emergency-accent-soft);
+  --ayni-surface: #fdfcff;
+  --ayni-muted: #565570;
+  --ayni-border: var(--ayni-emergency-border);
+  --ayni-control-border: #8b87a3;
+  --ayni-shadow: 0 6px 20px rgb(57 59 122 / 8%);
 
   *,
   *::before,

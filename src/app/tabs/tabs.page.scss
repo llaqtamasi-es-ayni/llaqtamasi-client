@@ -1,0 +1,32 @@
+ion-tab-bar {
+  --background: var(--ayni-surface);
+  --border: 1px solid var(--ayni-border);
+  min-height: 66px;
+  box-shadow: 0 -5px 24px rgb(31 39 36 / 7%);
+}
+
+ion-tab-button {
+  --color: var(--ayni-muted);
+  --color-selected: var(--ion-color-primary);
+  --padding-start: 4px;
+  --padding-end: 4px;
+  min-height: 60px;
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+
+ion-tab-button ion-icon {
+  box-sizing: content-box;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 1.25rem;
+}
+
+ion-tab-button.tab-selected ion-icon {
+  background: var(--ayni-accent-soft);
+}
+
+ion-tab-button::part(native):focus-visible {
+  outline: 2px solid var(--ayni-accent);
+  outline-offset: -4px;
+}

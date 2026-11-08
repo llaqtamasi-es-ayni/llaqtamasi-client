@@ -193,11 +193,9 @@ Ideas clave:
 
 ### Tema
 
-- **Modo normal:** tema claro. No sigue el modo oscuro del sistema a propósito.
-- **Pestaña Emergencia:** al entrar, `EmergenciaPage` añade las clases `ion-palette-dark` y `modo-emergencia` a `<html>`:
-  - fondo negro puro, que ahorra batería en pantallas OLED
-  - animaciones y transiciones desactivadas
-- Al salir de la pestaña, vuelve el tema claro.
+- **Modo cotidiano** usa verde petróleo `#176354`, fondo crema `#FBF6EE` y acento terracota `#8B482F`.
+- **Modo emergencia** se activa en Reportes. La clase `modo-emergencia` en `<html>` aplica índigo `#393B7A`, fondo lavanda `#F3F2FB` y etiquetas violeta `#604A82`, con animaciones y transiciones desactivadas.
+- Al desactivar el modo o salir de Reportes, vuelve la paleta cotidiana.
 
 ---
 
@@ -227,12 +225,12 @@ Revisa estas reglas en cada pull request.
 
 ## Conexión local con Spring Boot desde Android
 
-1. Configura la base MySQL y las variables de Spring Boot según el README del backend. Define `PORT=18080` antes de arrancar Spring Boot.
+1. Configura la base MySQL y las variables de Spring Boot según el README del backend. Arranca Spring Boot en el puerto `8080`.
 2. En esta carpeta, usa Node 24. Ejecuta `npm ci`, `npm run build -- --configuration development` y `npx cap sync android`.
 3. Abre la carpeta `android` en Android Studio. Selecciona JDK 21 para Gradle y ejecuta la variante de depuración en el emulador.
 4. En la pantalla inicial, inicia sesión con una cuenta del backend. Luego selecciona una zona en **Mapa**. Puedes cerrar sesión desde **Perfil**. Debe haber al menos una zona y un centro registrado en esa zona para que aparezca un marcador.
 
-En desarrollo, Android usa `http://10.0.2.2:18080/api` para acceder al servidor de la PC. La variante de depuración permite HTTP a esa dirección. En el navegador de la PC, la misma compilación usa `http://localhost:18080/api`.
+En desarrollo, Android usa `http://10.0.2.2:8080/api` para acceder al servidor de la PC. La variante de depuración permite HTTP a esa dirección. En el navegador de la PC, la misma compilación usa `http://localhost:8080/api`.
 
 El mapa consume login, zonas y centros. El cliente también tiene métodos para perfiles, muro, reportes y `/sync`. Las pantallas que todavía muestran marcadores de trabajo pendiente requieren su integración de interfaz.
 

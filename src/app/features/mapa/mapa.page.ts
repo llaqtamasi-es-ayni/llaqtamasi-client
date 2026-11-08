@@ -23,27 +23,55 @@ const ZOOM_INICIAL = 16;
       </ion-toolbar>
     </ion-header>
     <ion-content>
-      @if (!api.usaMocks) {
-        <section class="conexion">
-          @if (zonas.length) {
-            <label>Zona
-              <select [(ngModel)]="zonaId" (ngModelChange)="cargarCentros()" [disabled]="cargando">
-                @for (zona of zonas; track zona.id) {
-                  <option [value]="zona.id">{{ zona.nombre }}</option>
-                }
-              </select>
-            </label>
-          }
-          @if (estado) { <p role="status">{{ estado }}</p> }
+      <main class="ayni-pagina ayni-pagina--mapa">
+        <section class="ayni-encabezado" aria-labelledby="titulo-mapa">
+          <span class="ayni-etiqueta">Directorio</span>
+          <h1 id="titulo-mapa">Centros de ayuda</h1>
+          <p>Toca un marcador para consultar los datos de un centro.</p>
         </section>
-      }
-      <div #mapa class="mapa"></div>
+        @if (!api.usaMocks) {
+          <section class="ayni-tarjeta filtros" aria-label="Filtros del mapa">
+            @if (zonas.length) {
+              <div class="ayni-barra">
+                <label>
+                  Zona
+                  <select [(ngModel)]="zonaId" (ngModelChange)="cargarCentros()" [disabled]="cargando">
+                    @for (zona of zonas; track zona.id) {
+                      <option [value]="zona.id">{{ zona.nombre }}</option>
+                    }
+                  </select>
+                </label>
+                <label>
+                  Tipo de centro
+                  <select
+                    [ngModel]="tipoCentro"
+                    (ngModelChange)="filtrarCentros($event)"
+                    [disabled]="cargando || !centros.length"
+                  >
+                    <option value="">Todos</option>
+                    @for (tipo of tiposCentro; track tipo.id) {
+                      <option [value]="tipo.id">{{ tipo.etiqueta }}</option>
+                    }
+                  </select>
+                </label>
+              </div>
+            }
+            @if (estado) {
+              <p role="status">{{ estado }}</p>
+            }
+          </section>
+        }
+        <div #mapa class="mapa ayni-mapa" role="region" aria-label="Mapa de centros de ayuda"></div>
+      </main>
     </ion-content>
   `,
   styles: `
-    .conexion { padding: 12px; }
+    .filtros:empty { display: none; }
+    .filtros .ayni-barra { margin: 0; }
+    .filtros label { flex-basis: 8rem; }
     .mapa {
-      height: 100%;
+      height: clamp(22rem, 65vh, 52rem);
+      height: clamp(22rem, 65dvh, 52rem);
       width: 100%;
     }
   `,
@@ -55,6 +83,9 @@ export class MapaPage implements ViewDidEnter, OnDestroy {
   cargando = false;
   zonas: ZonaDisponible[] = [];
   zonaId = '';
+  centros: Centro[] = [];
+  tipoCentro = '';
+  readonly tiposCentro = Object.entries(ESTILO_CENTRO).map(([id, { etiqueta }]) => ({ id, etiqueta }));
   private marcadores?: L.LayerGroup;
   private readonly contenedor = viewChild.required<ElementRef<HTMLDivElement>>('mapa');
   private mapa?: L.Map;
@@ -106,17 +137,32 @@ export class MapaPage implements ViewDidEnter, OnDestroy {
 
   async cargarCentros(): Promise<void> {
     this.cargando = true;
+    this.estado = 'Cargando centros…';
+    this.centros = [];
     this.marcadores?.clearLayers();
     try {
-      const centros = await firstValueFrom(this.api.getCentros(this.zonaId));
-      this.pintarCentros(centros);
-      if (centros.length) this.mapa?.fitBounds(centros.map(c => [c.ubicacion.lat, c.ubicacion.lng]), { maxZoom: 16 });
-      this.estado = this.api.usaMocks ? '' : 'Centros cargados: ' + centros.length;
+      this.centros = await firstValueFrom(this.api.getCentros(this.zonaId));
+      this.filtrarCentros(this.tipoCentro);
     } catch {
       this.estado = 'No se pudieron cargar los centros.';
     } finally {
       this.cargando = false;
       this.cambios.markForCheck();
+    }
+  }
+
+  filtrarCentros(tipo: string): void {
+    this.tipoCentro = tipo;
+    const visibles = this.centros.filter(c => !tipo || c.tipo === tipo);
+    this.marcadores?.clearLayers();
+    this.pintarCentros(visibles);
+    if (visibles.length) {
+      this.mapa?.fitBounds(visibles.map(c => [c.ubicacion.lat, c.ubicacion.lng]), { maxZoom: 16 });
+      this.estado = 'Centros visibles: ' + visibles.length;
+    } else {
+      this.estado = this.centros.length
+        ? 'No hay centros de este tipo en la zona.'
+        : 'Esta zona aún no tiene centros registrados.';
     }
   }
 
@@ -128,7 +174,19 @@ export class MapaPage implements ViewDidEnter, OnDestroy {
   private pintarCentros(centros: Centro[]): void {
     for (const c of centros) {
       const popup = document.createElement('div');
-      popup.textContent = [c.nombre, ESTILO_CENTRO[c.tipo].etiqueta, c.horario].filter(Boolean).join(' · ');
+      const nombre = document.createElement('strong');
+      nombre.textContent = c.nombre;
+      popup.append(nombre);
+      for (const texto of [
+        ESTILO_CENTRO[c.tipo].etiqueta,
+        c.horario?.trim() && 'Horario: ' + c.horario,
+        c.contactoPublico?.trim() && 'Contacto: ' + c.contactoPublico,
+      ]) {
+        if (!texto) continue;
+        const linea = document.createElement('div');
+        linea.textContent = texto;
+        popup.append(linea);
+      }
       L.marker([c.ubicacion.lat, c.ubicacion.lng], { icon: iconoCentro(c.tipo), title: c.nombre })
         .bindPopup(popup)
         .addTo(this.marcadores!);
